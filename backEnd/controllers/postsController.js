@@ -38,13 +38,12 @@ const stats = async (req, res, next) => {
       })
       .countDocuments();
 
-    //get all followers
     const totalFollowers = await userSchema.findById(userId);
 
     const viewStats = await viewsSchema.aggregate([
       {
         $match: {
-          user: mongoose.Types.ObjectId(userId),
+          user: new mongoose.Types.ObjectId(userId),
           createdAt: { $gte: startDate, $lte: currentDate },
         },
       },
@@ -62,7 +61,7 @@ const stats = async (req, res, next) => {
     const followersStats = await followersSchema.aggregate([
       {
         $match: {
-          writerId: mongoose.Types.ObjectId(userId),
+          writerId: new mongoose.Types.ObjectId(userId),
           createdAt: { $gte: startDate, $lte: currentDate },
         },
       },
