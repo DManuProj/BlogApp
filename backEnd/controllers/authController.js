@@ -54,7 +54,7 @@ const userSignup = async (req, res, next) => {
     // });
   } catch (error) {
     console.log(error);
-    res.status(404).json({ message: error.message });
+    res.status(404).json({ message: "email is not valid" });
   }
 };
 
@@ -103,6 +103,7 @@ const login = async (req, res, next) => {
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
+      res.status(404).json({ message: "Invalid email or password" });
       return next("Invalid email or password");
     }
 

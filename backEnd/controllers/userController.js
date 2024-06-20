@@ -30,7 +30,8 @@ const OTPVerification = async (req, res, next) => {
           VerificationSchema.findOneAndDelete({ userId }),
         ]);
 
-        res.status(200).json({ message: "Email verified successfully" });
+        const user = await userSchema.findOneAndUpdate({ _id: userId });
+        res.status(200).json({ user, message: "Email verified successfully" });
       } else {
         return res
           .status(404)
