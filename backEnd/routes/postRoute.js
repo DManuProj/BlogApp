@@ -25,6 +25,6 @@ router.get("/comments/:postId", postController.getComments);
 
 //delete routes
 router.delete("/comments/:postId", userAuth, postController.deleteComment);
-router.delete("/comments/:postId", userAuth, postController.deletePost);
+router.delete("/:postId", userAuth, postController.deletePost);
 
 module.exports = router;

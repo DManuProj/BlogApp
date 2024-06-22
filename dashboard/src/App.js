@@ -17,6 +17,7 @@ import Followers from "./pages/Followers";
 import Settings from "./pages/Settings";
 import CreatePost from "./pages/CreatePost";
 import DashboardHome from "./pages/DashboardHome";
+import { MantineProvider } from "@mantine/core";
 
 // Create a custom theme with Poppins font
 export const theme = createTheme({
@@ -87,7 +88,11 @@ function App() {
         },
         {
           path: "create-post",
-          element: <CreatePost />,
+          element: (
+            <MantineProvider>
+              <CreatePost />
+            </MantineProvider>
+          ),
         },
         {
           path: "settings",
