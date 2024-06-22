@@ -50,10 +50,10 @@ const DashboardHome = () => {
         {/** should pass data.viewStats */}
         {statData && <Graph data={statData.viewStats} />}
       </div>
-      <div className="flex gap-6 flex-col md:flex-row py-6">
+      <div className="flex gap-6 flex-col md:flex-row py-6 ">
         {/* recent followers */}
 
-        <div className="w-full md:w-1/3 flex flex-col">
+        <div className="w-full md:w-1/3 flex flex-col ">
           <span className="py-5 text-base font-medium">Recent Folloers</span>
 
           {statData && <RecentFollowerTable data={statData.last5Followers} />}
@@ -61,7 +61,7 @@ const DashboardHome = () => {
         </div>
 
         {/* Top 5 contents */}
-        <div className="w-full md:w-2/3 flex flex-col">
+        <div className="w-full md:w-2/3 flex flex-col ">
           <span className="py-5 text-base font-medium">Recent 5 Content</span>
 
           {statData && <RecentPostTable data={statData.last5Posts} />}

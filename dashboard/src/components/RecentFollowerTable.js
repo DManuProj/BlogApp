@@ -17,8 +17,8 @@ export const RecentFollowerTable = ({ data, theme }) => {
   console.log("in the table", data);
 
   return (
-    <TableContainer component={Paper} className="mb-10">
-      <Table className="h-auto" aria-label="simple table">
+    <TableContainer component={Paper} className="mb-20">
+      <Table className="h-full " aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell className="font-bold">Follower</TableCell>
@@ -74,7 +74,7 @@ export const RecentFollowerTable = ({ data, theme }) => {
 
 export const RecentPostTable = ({ data, theme }) => {
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} className="mb-20">
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
@@ -105,7 +105,7 @@ export const RecentPostTable = ({ data, theme }) => {
                   <Box ml={2}>
                     <Typography variant="body1">{el?.title}</Typography>
                     <Typography variant="caption" color="error">
-                      {el?.cat}
+                      {el?.category}
                     </Typography>
                   </Box>
                 </TableCell>
