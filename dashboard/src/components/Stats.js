@@ -51,7 +51,10 @@ const Stats = ({ data }) => {
 
     return (
       <Grid item xs={12} sm={6} md={3} key={stat.title}>
-        <Paper className="p-2 h-full flex flex-col justify-between">
+        <Paper
+          elevation={3}
+          className="p-2 h-full flex border border-white flex-col justify-between dark:bg-gray-900 dark:text-white"
+        >
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -80,7 +83,11 @@ const Stats = ({ data }) => {
               <DiffIcon />
             </Stack>
           </Stack>
-          <Typography variant="caption" color="textSecondary" className="mt-2">
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            className=" dark:text-white mt-2"
+          >
             Compare to previous month
           </Typography>
         </Paper>

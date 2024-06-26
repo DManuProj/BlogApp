@@ -10,7 +10,7 @@ const useHttpRequest = () => {
     async (
       method,
       url,
-      data,
+      data = null,
       headers = { "Content-Type": "application/json" },
       config
     ) => {
@@ -28,7 +28,7 @@ const useHttpRequest = () => {
           headers,
           ...config,
         });
-        toast.success(response.data.message || "Request successful");
+        response.data.message && toast.success(response.data.message);
 
         console.log("response data", response.data);
 

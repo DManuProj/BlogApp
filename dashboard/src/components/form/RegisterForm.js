@@ -125,7 +125,7 @@ const RegisterForm = ({ setIsSignIn }) => {
           const passwordStrength = getPasswordStrength(values.password);
           const progressBarColor = getProgressBarColor(passwordStrength);
           return (
-            <Form className="flex flex-col gap-4">
+            <Form className="flex flex-col gap-4 dark:text-white">
               <Grid container xs={12} columnGap={1}>
                 <Grid item xs={5.8}>
                   <div>
@@ -181,7 +181,7 @@ const RegisterForm = ({ setIsSignIn }) => {
               <Button
                 type="submit"
                 variant="contained"
-                className="bg-slate-900 text-lg"
+                className="  bg-slate-900 text-lg"
               >
                 Signup
               </Button>
@@ -191,7 +191,7 @@ const RegisterForm = ({ setIsSignIn }) => {
         }}
       </Formik>
       {error && <Typography color="error">{error}</Typography>}
-      <p className="p-2">
+      <p className="p-2 dark:text-white">
         Already have an account?{" "}
         <span
           onClick={() => setIsSignIn((prev) => !prev)}

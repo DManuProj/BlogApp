@@ -68,7 +68,7 @@ const LoginForm = ({ setIsSignIn, user }) => {
         onSubmit={submitHandler}
       >
         {({ values }) => (
-          <Form className="flex flex-col gap-5">
+          <Form className="flex flex-col gap-5 dark:text-fuchsia-50">
             <div>
               <p>Email*</p>
               <TextField name="email" />
@@ -82,6 +82,7 @@ const LoginForm = ({ setIsSignIn, user }) => {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
+                        className="dark:text-fuchsia-50"
                         aria-label="toggle password visibility"
                         onClick={handleClickShowPassword}
                         edge="end"
@@ -96,14 +97,14 @@ const LoginForm = ({ setIsSignIn, user }) => {
             <Button
               type="submit"
               variant="contained"
-              className=" bg-slate-900 text-lg"
+              className="  bg-slate-900 text-lg"
             >
               SignIn
             </Button>
           </Form>
         )}
       </Formik>
-      <p className="p-2">
+      <p className="p-2 dark:text-fuchsia-50">
         Don't have an account?{" "}
         <span
           onClick={() => setIsSignIn((prev) => !prev)}

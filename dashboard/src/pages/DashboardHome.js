@@ -45,12 +45,12 @@ const DashboardHome = () => {
     <div className="w-full   ">
       {/* should pass the data = data */}
       <Stats data={statData} />
-      <div className="w-full py-8">
-        <p>View Stats for last 28 days</p>
+      <div className="w-full py-8 dark:text-white ">
+        <p className="mb-3">View Stats for last 28 days</p>
         {/** should pass data.viewStats */}
         {statData && <Graph data={statData.viewStats} />}
       </div>
-      <div className="flex gap-6 flex-col md:flex-row py-6 ">
+      <div className="flex gap-6 flex-col md:flex-row py-6 dark:text-white  ">
         {/* recent followers */}
 
         <div className="w-full md:w-1/3 flex flex-col ">
