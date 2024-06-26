@@ -14,9 +14,11 @@ const FileInput = ({
   fileURL,
   isFileUploaded,
   setIsFileUploaded,
+  previewURL,
 }) => {
   const [field, meta] = useField(name);
   const [preview, setPreview] = useState(null);
+  const [imageUrl, setImageUrl] = useState(previewURL);
 
   const handleChange = (event) => {
     const file = event.currentTarget.files[0];
@@ -31,19 +33,23 @@ const FileInput = ({
       reader.readAsDataURL(file);
     } else {
       setPreview(null);
+      setImageUrl(imageUrl);
       setIsFileUploaded(0);
     }
   };
 
   const handleRemove = () => {
-    // setFieldValue(name, null);
-    // setPreview(null);
-    // setIsFileUploaded(0);
     if (fileURL) {
       deleteFile(fileURL)
         .then(() => {
-          setFieldValue(name, null);
+          if (previewURL) {
+            setFieldValue(name, previewURL);
+          } else {
+            setFieldValue(name, null);
+          }
+
           setPreview(null);
+          setImageUrl(previewURL);
           setIsFileUploaded(0);
         })
         .catch((error) => {
@@ -68,16 +74,12 @@ const FileInput = ({
         id="file-input"
       />
       <label htmlFor="file-input">
-        {!preview ? (
-          //   <Button component="span">
-          //     <RiImageAddFill />
-          //   </Button>
-
+        {!preview && !imageUrl ? (
           <IconButton component="span" className="flex justify-center ">
-            <RiImageAddFill className="size-20" />
+            <RiImageAddFill className="size-20 dark:text-white" />
           </IconButton>
         ) : (
-          <Button component="span">Changes</Button>
+          <Button component="span">Change profile pic?</Button>
         )}
       </label>
       {meta.touched && meta.error ? (
@@ -91,9 +93,6 @@ const FileInput = ({
             src={preview}
             alt="Preview"
             className={`rounded-full w-28 h-28 object-cover `}
-            // className={`rounded-full w-28 h-28 object-cover ${
-            //   isFileUploaded < 100 && `bg-gray-500`
-            // }`}
           />
 
           <IconButton onClick={handleRemove}>
@@ -101,14 +100,25 @@ const FileInput = ({
           </IconButton>
         </div>
       )}
-      {preview && isFileUploaded < 100 && (
+      {imageUrl && !preview && (
         <div className=" mt-1 flex items-start justify-center ">
-          <Skeleton variant="circular" className="w-28 h-28  mr-7" />
+          <img
+            src={imageUrl}
+            alt="Preview"
+            className={`rounded-full w-28 h-28 object-cover `}
+          />
         </div>
       )}
-      {/* <div className=" mt-1 flex items-start justify-center ">
-        <Skeleton variant="circular" className="w-28 h-28 mr-7" />
-      </div> */}
+
+      {preview && isFileUploaded < 100 && (
+        <div className=" mt-1 flex items-start justify-center ">
+          <Skeleton
+            variant="circular"
+            className="w-28 h-28  mr-7 dark:text-white"
+          />
+        </div>
+      )}
+
       <Toaster position="bottom-right" reverseOrder={true} />
     </div>
   );

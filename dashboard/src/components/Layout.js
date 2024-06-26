@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import fb from "../assets/fb.png";
 import insta from "../assets/insta.png";
 import twitter from "../assets/twitter.png";
 import logo from "../assets/Logo.png";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import AdminDashboard from "../pages/AdminDashboard";
+import { BsFillMoonStarsFill } from "react-icons/bs";
+
 import {
   Avatar,
   Box,
@@ -14,12 +16,21 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { MdArrowForward } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { signInModal, signOut } from "../store/userSlice";
+import { CiLogout } from "react-icons/ci";
+import {
+  setDrawerOpen,
+  signInModal,
+  signOut,
+  toggleMode,
+} from "../store/userSlice";
 import { IoMdMenu } from "react-icons/io";
 import LoadingSpinner from "./LoadingSpinner";
+
+import { IoMdSunny } from "react-icons/io";
+import { LuSettings } from "react-icons/lu";
 // import LoginForm from "./form/LoginForm";
 
 // const MobileDrawer = () => {
@@ -29,11 +40,11 @@ import LoadingSpinner from "./LoadingSpinner";
 const UserMenu = ({ user, theme }) => {
   // const { user, isOTPLevel, signInModal } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSignOut = () => {
-    dispatch(signOut());
     setTimeout(() => {
-      localStorage.removeItem("user");
+      dispatch(signOut());
       window.location.replace("/auth");
     }, 3000);
   };
@@ -45,6 +56,11 @@ const UserMenu = ({ user, theme }) => {
   };
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const navigateToSettings = () => {
+    navigate("/dashboard/settings");
+    handleClose(); // Close menu after navigation
   };
 
   const firstName = user.name.trim().split(/\s+/)[0];
@@ -71,12 +87,12 @@ const UserMenu = ({ user, theme }) => {
           aria-expanded={open ? "true" : undefined}
         >
           {user.image ? (
-            <Avatar className="size-11" src={user.image} />
+            <Avatar className=" size-9 xs:size-11" src={user.image} />
           ) : (
             <Avatar className="size-11">{initials}</Avatar>
           )}
         </IconButton>
-        <div className="mx-2 text-sm">
+        <div className="mx-2 text-sm dark:text-white">
           <p className="font-semibold">{firstName}</p>
           <p className="text-xs">{user.account}</p>
         </div>
@@ -116,23 +132,16 @@ const UserMenu = ({ user, theme }) => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleClose}>
-          <Avatar /> Profile
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <Avatar /> My account
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon></ListItemIcon>
-          Add another account
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon></ListItemIcon>
+        <MenuItem onClick={navigateToSettings}>
+          <ListItemIcon>
+            <LuSettings />
+          </ListItemIcon>
           Settings
         </MenuItem>
         <MenuItem onClick={handleSignOut}>
-          <ListItemIcon></ListItemIcon>
+          <ListItemIcon>
+            <CiLogout />
+          </ListItemIcon>
           Logout
         </MenuItem>
       </Menu>
@@ -141,12 +150,27 @@ const UserMenu = ({ user, theme }) => {
 };
 
 const Layout = ({ children }) => {
-  const { user, isOTPLevel, isLoading } = useSelector((state) => state.user);
+  const { user, isOTPLevel, isLoading, drawerOpen, isDarkMode } = useSelector(
+    (state) => state.user
+  );
 
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDarkMode]);
+
+  const toggleModeHandler = () => {
+    dispatch(toggleMode());
+  };
+  const isMdScreen = useMediaQuery("(max-width:768px)");
+  const isSmScreen = useMediaQuery("(min-width:600px)");
   const dispatch = useDispatch();
 
-  console.log("user in layout", user);
   const location = useLocation();
+
   {
     /* {user.token ? (
           <AdminDashboard />
@@ -158,29 +182,69 @@ const Layout = ({ children }) => {
   const handleLogin = () => {
     dispatch(signInModal(true));
   };
+  const handleOpenDrawer = () => {
+    dispatch(setDrawerOpen(true));
+    console.log("click menu icon");
+  };
+
   return (
-    <div className="font-sans ">
+    <div className="dark:bg-slate-800 bg-white">
       <div
         style={{ overflow: "hidden " }}
-        className=" border border-gray-200 border-solid flex justify-between items-center h-20 w-full px-8  py-2  "
+        className=" border-b dark:border-gray-500 border-gray-200 border-solid flex justify-between items-center h-20 w-full px-8  py-2  "
       >
-        <div className="cursor-pointer   flex gap-3 content-center items-center size-5 ">
-          <img src={fb} alt="fb" />
-          <img src={insta} alt="fb" />
-          <img src={twitter} alt="fb" />
+        <div
+          style={{
+            display: `${
+              location.pathname !== "/auth" && isMdScreen ? "none" : "flex"
+            }`,
+          }}
+          className=" cursor-pointer gap-3 content-center items-center size-5"
+        >
+          <img src={fb} alt="fb" style={{ height: "20px", width: "20px" }} />
+          <img
+            src={insta}
+            alt="insta"
+            style={{ height: "20px", width: "20px" }}
+          />
+          <img
+            src={twitter}
+            alt="twitter"
+            className="dark:bg-white rounded-full"
+            style={{ height: "20px", width: "20px" }}
+          />
         </div>
-        <div className="cursor-pointer w-auto">
+
+        {location.pathname !== "/auth" && isMdScreen && (
+          <IoMdMenu
+            className=" size-8 cursor-pointer"
+            onClick={handleOpenDrawer}
+          />
+        )}
+
+        <div style={{}} className=" hidden md:flex cursor-pointer w-auto">
           <img className=" w-32 h-10" src={logo} alt="logo" />
         </div>
+
         <div className="flex gap-14 items-center">
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center   ">
+            {location.pathname === "/auth" && (
+              <IconButton onClick={toggleModeHandler}>
+                {isDarkMode ? (
+                  <IoMdSunny className="h-full size-6 dark:text-white font-bold" />
+                ) : (
+                  <BsFillMoonStarsFill className="size-5 font-bold text-black dark:text-white" />
+                )}
+              </IconButton>
+            )}
+
             {user?.token ? (
               <UserMenu user={user} />
             ) : (
               <Link
                 // to="login"
                 onClick={handleLogin}
-                className="flex items-center gap-2 rounded-full 2XL:mr-10 text-base"
+                className="flex items-center gap-2 dark:text-white rounded-full 2XL:mr-10 text-base"
               >
                 <span>Login</span>
                 <MdArrowForward />

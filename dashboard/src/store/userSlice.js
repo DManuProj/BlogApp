@@ -2,10 +2,13 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
-  isOTPLevel: false,
   isLoading: false,
   signInModalOpen: false,
-  otpData: JSON.parse(localStorage.getItem("otp_data")) || null,
+  isDarkMode:
+    localStorage.getItem("isDarkMode") !== undefined
+      ? JSON.parse(localStorage.getItem("isDarkMode"))
+      : false, //light mode is the default
+  drawerOpen: false,
 };
 
 const userSlice = createSlice({
@@ -26,21 +29,45 @@ const userSlice = createSlice({
 
       localStorage.setItem("user", JSON.stringify(userData));
     },
+    updateUser: (state, action) => {
+      console.log("in the store", action.payload);
+      const userData = {
+        id: action.payload.updatedUser._id,
+        name: action.payload.updatedUser.name,
+        token: action.payload.token,
+        isEmailVerified: action.payload.updatedUser.emailVerified,
+        account: action.payload.updatedUser.accountType,
+        image: action.payload.updatedUser.image,
+      };
+      state.user = userData;
+
+      localStorage.setItem("user", JSON.stringify(userData));
+    },
     signInModal: (state, action) => {
       state.signInModalOpen = action.payload;
+    },
+    setDrawerOpen: (state, action) => {
+      state.drawerOpen = action.payload;
     },
     signOut: (state) => {
       state.user = { id: null, token: null };
       state.isLoading = true;
       localStorage.removeItem("user");
     },
-    setOTPData: (state, action) => {
-      state.otpData = action.payload;
-      localStorage.setItem("otp_data", JSON.stringify(action.payload));
+    toggleMode: (state) => {
+      state.isDarkMode = !state.isDarkMode;
+      localStorage.setItem("isDarkMode", state.isDarkMode);
     },
   },
 });
 
-export const { signIn, setPT, signOut, setOTPData, signInModal } =
-  userSlice.actions;
+export const {
+  signIn,
+  setPT,
+  signOut,
+  signInModal,
+  setDrawerOpen,
+  updateUser,
+  toggleMode,
+} = userSlice.actions;
 export default userSlice.reducer;

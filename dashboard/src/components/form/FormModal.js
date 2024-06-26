@@ -11,13 +11,13 @@ const FormModal = ({ children, title, height, open, onClose }) => {
         onClick={onClose}
       ></div>
       <div
-        className={`relative bg-white rounded-2xl shadow-lg px-4  py-4 h-auto w-96`}
+        className={`relative dark:bg-slate-800 bg-white rounded-2xl shadow-lg px-4  py-4 h-auto w-96`}
       >
-        <div className=" flex content-center mb-4 justify-between items-center ">
-          <h4 className="text-xl font-semibold">{title}</h4>
+        <div className=" flex dark:text-fuchsia-50 content-center mb-4 justify-between items-center ">
+          <h4 className="text-xl  font-semibold">{title}</h4>
           <button
             onClick={onClose}
-            className="  text-gray-600 hover:text-gray-900 text-xl"
+            className=" dark:text-fuchsia-50 text-gray-600 hover:text-gray-900 text-xl"
           >
             <IoMdClose />
           </button>

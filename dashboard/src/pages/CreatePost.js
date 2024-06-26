@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, FormControl, Grid, MenuItem } from "@mui/material";
+import { Button, FormControl, Grid, MenuItem, Typography } from "@mui/material";
 import Select from "../components/form/SelectUI";
 import ReactQuill, { Quill } from "react-quill";
 import { createSlug, uploadFile } from "../util/index";
@@ -14,7 +14,7 @@ import useHttpRequest from "../hooks/useHttpRequest";
 import { useSelector } from "react-redux";
 
 const CreatePost = () => {
-  const { user } = useSelector((state) => state.user);
+  const { user, isDarkMode } = useSelector((state) => state.user);
   const [file, setFile] = useState("");
   const [fileURL, setFileURL] = useState(null);
   const [clickedAddImage, setClickedAddImage] = useState(false);
@@ -105,6 +105,13 @@ const CreatePost = () => {
 
   return (
     <>
+      <Typography
+        variant="h6"
+        className="text-slate-700 dark:text-white font-semibold"
+        gutterBottom
+      >
+        Create a Post
+      </Typography>
       <Formik
         initialValues={INITIAL_VALUES}
         validationSchema={FORM_VALIDATION}
@@ -112,12 +119,12 @@ const CreatePost = () => {
       >
         {({ setFieldValue, values }) => (
           <Form>
-            <div className="w-full flex md:flex-row flex-wrap gap-5 mb-8">
+            <div className="w-full dark:text-white flex md:flex-row flex-wrap gap-5 mb-8">
               <TextfieldUI
                 placeholder="Enter Post Title"
                 name="title"
                 fullWidth={false}
-                className="lg:flex-1"
+                className="lg:flex-1 dark:text-white "
               />
 
               <Select
@@ -126,6 +133,19 @@ const CreatePost = () => {
                 size="small"
                 className="w-32"
                 options={["NEWS", "SPORTS", "CODING", "EDUCATION", "FASHION"]}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: `${isDarkMode ? "white" : ""}`,
+                    },
+                  },
+                  "& .MuiSvgIcon-root": {
+                    color: `${isDarkMode ? "white" : ""}`,
+                  },
+                  "& .MuiSelect-icon": {
+                    color: `${isDarkMode ? "white" : ""}`,
+                  },
+                }}
               />
 
               <label
@@ -149,13 +169,13 @@ const CreatePost = () => {
               </label>
             </div>
 
-            <div className="flex flex-col h-2/4">
+            <div className="flex flex-col h-2/4 ">
               <ReactQuill
                 name="description"
                 value={values.description}
                 onChange={(content) => setFieldValue("description", content)}
                 placeholder="Write your post content here..."
-                className="mb-6 h-40"
+                className="mb-6 h-40 dark:text-white "
                 theme="snow"
                 modules={{ toolbar }}
               />
@@ -164,7 +184,7 @@ const CreatePost = () => {
                 <Button
                   type="submit"
                   variant="contained"
-                  className="bg-slate-900 text-lg"
+                  className=" dark:bg-white  dark:text-slate-900 text-lg"
                 >
                   Create Post
                 </Button>

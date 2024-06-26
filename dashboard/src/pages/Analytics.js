@@ -8,7 +8,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { Toaster } from "react-hot-toast";
 
 const Analytics = () => {
-  const { user } = useSelector((state) => state.user);
+  const { user, isDarkMode } = useSelector((state) => state.user);
   const { isLoading, sendRequest } = useHttpRequest();
   const [numOfDays, setNumberOfDays] = useState(28);
   const [statData, setStatData] = useState(null);
@@ -43,10 +43,23 @@ const Analytics = () => {
   console.log("numbOfdates", numOfDays);
   return (
     <div>
-      <div className="w-full flex items-center justify-between mb-3">
+      <div className="w-full flex items-center justify-between mb-3  dark:text-white">
         <p className="text-xl font-semibold ">Analytics</p>
-        <FormControl size="medium">
+        <FormControl
+          size="medium"
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: `${isDarkMode ? "white" : ""} `,
+              },
+            },
+            "& .MuiSvgIcon-root": {
+              color: `${isDarkMode ? "white" : ""} `,
+            },
+          }}
+        >
           <Select
+            className="dark:text-white"
             labelId="range-select-label"
             defaultValue={28}
             onChange={handleChange}
@@ -61,14 +74,14 @@ const Analytics = () => {
       {statData && <Stats data={statData} />}
 
       <div className="w-full py-8">
-        <p className="py-5 text-base font-medium ">
+        <p className="py-5 text-base font-medium dark:text-white ">
           View Stats for last {numOfDays} days
         </p>
         {statData && <Graph data={statData.viewStats} />}
       </div>
 
       <div className="w-full py-8">
-        <p className="py-5 text-base font-medium ">
+        <p className="py-5 text-base font-medium dark:text-white ">
           Followers Stats for last {numOfDays} days
         </p>
         {statData && <Graph data={statData.viewStats} />}
@@ -76,7 +89,7 @@ const Analytics = () => {
 
       {isLoading && <LoadingSpinner />}
 
-      <Toaster richColors />
+      <Toaster position="bottom-right" />
     </div>
   );
 };

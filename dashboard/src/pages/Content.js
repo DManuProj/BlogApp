@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
   Menu,
@@ -18,23 +18,26 @@ import {
   DialogActions,
   IconButton,
   ListItemIcon,
+  Typography,
 } from "@mui/material";
 import { AiOutlineEye, AiOutlineSetting } from "react-icons/ai";
 import { MdMessage, MdOutlineDeleteOutline } from "react-icons/md";
 import { BiDotsVerticalRounded } from "react-icons/bi";
-import { HiDotsVertical } from "react-icons/hi";
 import { updateURL } from "../util/index";
 import moment from "moment";
 import clsx from "clsx";
 import useHttpRequest from "../hooks/useHttpRequest";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { setOpenComments, setCommentId } from "../store/commentsSlice";
 import { Toaster } from "react-hot-toast";
+import Comments from "../components/Comments";
 
 const Content = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useSelector((state) => state.user);
+  const { openComment, commentId } = useSelector((state) => state.comments);
   const [selected, setSelected] = useState("");
   const [type, setType] = useState(null);
   const [status, setStatus] = useState(null);
@@ -45,6 +48,8 @@ const Content = () => {
   // const [isPending, setIsPending] = useState(false);
   const [actionMenu, setActionMenu] = useState(null);
   const { isLoading, sendRequest } = useHttpRequest();
+
+  const dispatch = useDispatch();
 
   const fetchContent = async () => {
     updateURL({ page, navigate, location });
@@ -71,7 +76,8 @@ const Content = () => {
 
   const handleComment = (id, size) => {
     if (size > 0) {
-      // Handle comment open
+      dispatch(setCommentId({ id }));
+      dispatch(setOpenComments(true));
     }
   };
 
@@ -81,14 +87,12 @@ const Content = () => {
     setStatus(status);
     setOpen(true);
   };
-  console.log("selected", selected);
-  console.log("type", type);
-  console.log("status", status);
+
   const handleActions = async () => {
     switch (type) {
       case "delete":
         // Perform delete actionc
-        await sendRequest("DELETE", `posts/${selected}`, null, {
+        await sendRequest("DELETE", `posts/${selected}`, {
           Authorization: `Bearer ${user.token}`,
         });
         break;
@@ -123,33 +127,37 @@ const Content = () => {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <p className="text-lg pb-1 font-semibold">
+      <Typography className="text-lg pb-1 dark:text-white font-semibold">
         Contents (
         <span>
           {contentData.length * page + " of " + totalPosts + " records"}
         </span>
         )
-      </p>
+      </Typography>
 
       <TableContainer>
         <Table>
           <TableHead>
-            <TableRow className="cursor-pointer">
-              <TableCell className="text-base ">Post Title</TableCell>
-              <TableCell className="text-base">Category</TableCell>
-              <TableCell className="text-base" align="center">
+            <TableRow className="cursor-pointer  ">
+              <TableCell className="text-base dark:text-white">
+                Post Title
+              </TableCell>
+              <TableCell className="text-base dark:text-white">
+                Category
+              </TableCell>
+              <TableCell className="text-base dark:text-white" align="center">
                 Views
               </TableCell>
-              <TableCell className="text-base" align="center">
+              <TableCell className="text-base dark:text-white" align="center">
                 Comments
               </TableCell>
-              <TableCell className="text-base" align="center">
+              <TableCell className="text-base dark:text-white" align="center">
                 Post Date
               </TableCell>
-              <TableCell className="text-base" align="center">
+              <TableCell className="text-base dark:text-white" align="center">
                 Status
               </TableCell>
-              <TableCell className="text-base" align="center">
+              <TableCell className="text-base dark:text-white" align="center">
                 Action
               </TableCell>
             </TableRow>
@@ -157,8 +165,8 @@ const Content = () => {
           <TableBody>
             {contentData.length > 0 &&
               contentData.map((el) => (
-                <TableRow key={el._id} className="to-gray-400">
-                  <TableCell className="flex gap-2 items-center">
+                <TableRow key={el._id} className="to-gray-400 ">
+                  <TableCell className="flex gap-2 items-center dark:text-white">
                     <img
                       src={el.img}
                       alt={el.title}
@@ -166,23 +174,29 @@ const Content = () => {
                     />
                     <p>{el.title}</p>
                   </TableCell>
-                  <TableCell>{el.category}</TableCell>
-                  <TableCell align="center">
+                  <TableCell className="dark:text-pink-700 dark:font-bold">
+                    {el.category}
+                  </TableCell>
+                  <TableCell className="dark:text-white " align="center">
                     <IconButton>
-                      <AiOutlineEye />
+                      <AiOutlineEye className="dark:text-white " />
                     </IconButton>
                     {el.views.length ? el.views : 0}
                   </TableCell>
-                  <TableCell align="center">
-                    <IconButton>
-                      <MdMessage />
+                  <TableCell className="dark:text-white " align="center">
+                    <IconButton
+                      onClick={() =>
+                        handleComment(el?._id, el?.comments?.length)
+                      }
+                    >
+                      <MdMessage className="dark:text-white " />
                     </IconButton>
-                    {el.comments.length ? el.comments : 0}
+                    {el.comments.length ? el.comments.length : 0}
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell className="dark:text-white " align="center">
                     {moment(el.createdAt).fromNow()}
                   </TableCell>
-                  <TableCell align="center" className=" ">
+                  <TableCell align="center" className="dark:text-white ">
                     <span
                       className={clsx(
                         el.status ? "bg-green-700" : "bg-red-700",
@@ -192,9 +206,9 @@ const Content = () => {
                       {el.status ? "Active" : "Disabled"}
                     </span>
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell className="dark:text-white " align="center">
                     <IconButton onClick={handleClick}>
-                      <BiDotsVerticalRounded />
+                      <BiDotsVerticalRounded className="dark:text-white " />
                     </IconButton>
                     <Menu
                       anchorEl={actionMenu}
@@ -206,7 +220,7 @@ const Content = () => {
                           handlePerformAction("status", el._id, !el.status)
                         }
                       >
-                        <ListItemIcon>
+                        <ListItemIcon className="dark:text-white ">
                           <AiOutlineSetting size={21} />
                         </ListItemIcon>
 
@@ -240,13 +254,18 @@ const Content = () => {
 
       <div className="w-full mt-5 flex items-center justify-center">
         <Pagination
+          className="dark:bg-white "
           count={totalPosts}
           page={page}
           onChange={(e, value) => setPage(value)}
         />
       </div>
 
-      <Dialog open={open} onClose={() => setOpen(false)}>
+      <Dialog
+        className="dark:bg-slate-700"
+        open={open}
+        onClose={() => setOpen(false)}
+      >
         <DialogTitle>Confirm Action</DialogTitle>
         <DialogContent>
           Are you sure you want to perform this action?
@@ -285,6 +304,8 @@ const Content = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {openComment && <Comments />}
       {isLoading && <LoadingSpinner />}
 
       <Toaster position="bottom-right" />

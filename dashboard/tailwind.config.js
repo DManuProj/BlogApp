@@ -2,10 +2,8 @@
 module.exports = {
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
   important: "#root",
+  darkMode: "class",
   theme: {
-    // colors: {
-    //   bgColor: "EEEEFF",
-    // },
     extend: {
       fontFamily: {
         Poppins: ["Poppins", "sans-serif"],

@@ -13,10 +13,10 @@ const commentsSlice = createSlice({
       state.openComment = action.payload;
     },
     setCommentId: (state, action) => {
-      state.commentId = action.payload;
+      state.commentId = action.payload.id;
     },
   },
 });
 
-export const {} = commentsSlice.actions;
+export const { setCommentId, setOpenComments } = commentsSlice.actions;
 export default commentsSlice.reducer;
