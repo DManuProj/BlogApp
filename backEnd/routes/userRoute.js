@@ -9,8 +9,8 @@ router.post("/resend-link/:userId", userController.resentOTP); //change :id to u
 
 //user routes
 router.post("/follower/:id", userAuth, userController.followWriter);
-router.post("/update-user", userAuth, userController.updateWriter);
+router.put("/update-user", userAuth, userController.updateWriter);
 
-router.post("/get-user/:id?", userController.getWriter);
+router.get("/get-user/:id?", userController.getUser);
 
 module.exports = router;

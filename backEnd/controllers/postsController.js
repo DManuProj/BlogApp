@@ -430,7 +430,7 @@ const deletePost = async (req, res, next) => {
     const { userId } = req.body.user;
     const { id } = req.params;
 
-    await Posts.findOneAndDelete({ _id: id, user: userId });
+    await postSchema.findOneAndDelete({ _id: id, user: userId });
 
     res.status(200).json({
       success: true,
@@ -446,7 +446,7 @@ const deleteComment = async (req, res, next) => {
   try {
     const { id, postId } = req.params;
 
-    await Comments.findByIdAndDelete(id);
+    await commentSchema.findByIdAndDelete(id);
 
     //removing commetn id from post
     const result = await postSchema.updateOne(

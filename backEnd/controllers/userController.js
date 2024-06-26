@@ -159,6 +159,29 @@ const getWriter = async (req, res, next) => {
     res.status(404).json({ message: "Something went wrong" });
   }
 };
+const getUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const user = await userSchema.findById(id);
+
+    if (!user) {
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found" });
+    }
+
+    user.password = undefined;
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ message: "Something went wrong" });
+  }
+};
 
 module.exports = {
   OTPVerification,
@@ -166,4 +189,5 @@ module.exports = {
   getWriter,
   resentOTP,
   updateWriter,
+  getUser,
 };
