@@ -2,7 +2,7 @@ const VerificationSchema = require("../models/emailVerificationSchema");
 const followersSchema = require("../models/followersSchema");
 const userSchema = require("../models/userSchema");
 const sendVerificationEmail = require("../util/sendmail");
-const { comparePassword, createJWT } = require("../util/index");
+const { compareString, createJWT, hashPassword } = require("../util/index");
 
 const OTPVerification = async (req, res, next) => {
   try {
@@ -11,7 +11,7 @@ const OTPVerification = async (req, res, next) => {
     const result = await VerificationSchema.findOne({ userId });
 
     if (!result) {
-      return res.status(404).json({ message: "the otp or user invalid" });
+      return res.status(404).json({ message: "The user is invalid" });
     }
 
     const { expiredAt, token } = result;
@@ -20,9 +20,9 @@ const OTPVerification = async (req, res, next) => {
     if (expiredAt < Date.now()) {
       await VerificationSchema.findOneAndDelete({ userId });
 
-      res.status(404).json({ message: "Verification token has expired" });
+      res.status(404).json({ message: "Verification code has expired" });
     } else {
-      const isMatch = await comparePassword(otp, token);
+      const isMatch = await compareString(otp, token);
 
       if (isMatch) {
         await Promise.all([
@@ -30,12 +30,21 @@ const OTPVerification = async (req, res, next) => {
           VerificationSchema.findOneAndDelete({ userId }),
         ]);
 
-        const user = await userSchema.findOneAndUpdate({ _id: userId });
-        res.status(200).json({ user, message: "Email verified successfully" });
+        const user = await userSchema.findOneAndUpdate(
+          { _id: userId },
+          { emailVerified: true }
+        );
+
+        res.status(200).json({
+          success: true,
+          user,
+          message: "Email verified successfully",
+        });
       } else {
-        return res
-          .status(404)
-          .json({ message: "Verification failed or OTP is invalid" });
+        return res.status(404).json({
+          success: false,
+          message: "Verification failed or OTP is invalid",
+        });
       }
     }
   } catch (error) {
@@ -96,10 +105,54 @@ const followWriter = async (req, res, next) => {
     res.status(404).json({ message: "Something went wrong" });
   }
 };
-
-const updateWriter = async (req, res, next) => {
+const unfollowWriter = async (req, res, next) => {
   try {
-    const { firstName, lastName, image } = req.body;
+    const followerId = req.body.user.userId;
+    const { id } = req.params;
+
+    // Find the follower entry
+    const followerEntry = await followersSchema.findOne({
+      followerId,
+      writerId: id,
+    });
+
+    if (!followerEntry) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not following this writer",
+      });
+    }
+
+    // Find the writer
+    const writer = await userSchema.findById(id);
+
+    if (!writer) {
+      return res.status(404).json({ message: "Writer not found" });
+    }
+
+    // Remove the follower entry
+    await followersSchema.findByIdAndDelete(followerEntry._id);
+
+    // Remove follower from the writer's followers list
+    writer.followers = writer.followers.filter(
+      (follower) => follower.toString() !== followerEntry._id.toString()
+    );
+
+    await userSchema.findByIdAndUpdate(id, writer, { new: true });
+
+    res.status(200).json({
+      success: true,
+      message: "You have unfollowed this writer " + writer.name,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+const updateUser = async (req, res, next) => {
+  try {
+    const { firstName, lastName, image, email } = req.body;
 
     if (!(firstName || lastName)) {
       return next("Please provide all required field");
@@ -107,11 +160,24 @@ const updateWriter = async (req, res, next) => {
 
     const { userId } = req.body.user;
 
+    const result = await userSchema.findOne({ _id: userId });
+
     const updateUser = {
       name: firstName + " " + lastName,
       image,
       _id: userId,
+      email,
     };
+
+    if (result && result.email !== email) {
+      const isEmailExist = await userSchema.findOne({ email });
+
+      if (isEmailExist) {
+        return next("Email is already exists");
+      } else {
+        updateUser.emailVerified = false;
+      }
+    }
 
     const user = await userSchema.findByIdAndUpdate(userId, updateUser, {
       new: true,
@@ -125,6 +191,46 @@ const updateWriter = async (req, res, next) => {
       success: true,
       message: "User updated successfully",
       user,
+      token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ message: "Something went wrong" });
+  }
+};
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!(email || password)) {
+      return next("Please provide all required field");
+    }
+
+    const user = await userSchema.findOne({ email });
+
+    if (!user) {
+      return next("Email is not found");
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    const updatedUser = await userSchema.findByIdAndUpdate(
+      user._id,
+      hashedPassword,
+      {
+        new: true,
+      }
+    );
+
+    const token = createJWT(user._id);
+
+    updatedUser.password = undefined;
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+      user: updatedUser,
       token,
     });
   } catch (error) {
@@ -188,6 +294,8 @@ module.exports = {
   followWriter,
   getWriter,
   resentOTP,
-  updateWriter,
+  updateUser,
   getUser,
+  resetPassword,
+  unfollowWriter,
 };

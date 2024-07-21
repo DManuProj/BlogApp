@@ -1,26 +1,50 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MuiOtpInput } from "mui-one-time-password-input";
 import useHttpRequest from "../hooks/useHttpRequest";
 import toast, { Toaster } from "react-hot-toast";
-import { signIn } from "../store/userSlice";
+import { setUserData } from "../store/userSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const OtpVerification = () => {
   const { isLoading, sendRequest } = useHttpRequest();
-  // const otpData = JSON.parse(localStorage.getItem("otp_data"));
 
   const dispatch = useDispatch();
 
+  const location = useLocation();
   const navigate = useNavigate();
+  const prevLocation = location.state?.from;
 
-  const { user, otpData } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
 
-  // console.log("user", user);
-
-  const [seconds, setSeconds] = useState(10);
+  const [seconds, setSeconds] = useState(120);
   const [otp, setOtp] = useState("");
+
+  //check if its from the dashboard/setting page
+  if (!user.isEmailVerified) {
+    var fromSetting = prevLocation.pathname;
+    var fromDashboard = prevLocation.startsWith("/dashboard");
+  }
+
+  useEffect(() => {
+    console.log("runs on here", prevLocation);
+    if (
+      prevLocation &&
+      (fromSetting || fromDashboard) &&
+      !user.isEmailVerified
+    ) {
+      resendOtp();
+    }
+  }, [prevLocation]);
+
+  useEffect(() => {
+    if (user) {
+      if (!user.token || user.isEmailVerified) {
+        navigate("/", { replace: true });
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (seconds > 0) {
@@ -38,19 +62,7 @@ const OtpVerification = () => {
       const data = await sendRequest("POST", `users/resend-link/${user.id}`);
       console.log("dataOnResend ", data);
 
-      localStorage.setItem(
-        "otp_data",
-        JSON.stringify({
-          otpLevel: true,
-          id: data.user._id,
-        })
-      );
-
-      dispatch(signIn(data.user, data.token));
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      dispatch(setUserData(data.user, data.token));
     } catch (error) {}
     setOtp("");
     setSeconds(120);
@@ -63,30 +75,19 @@ const OtpVerification = () => {
 
   const handleOnComplete = async (value) => {
     try {
-      const data = await sendRequest(
+      const result = await sendRequest(
         "POST",
         `users/verify/${user.id}/${value}`
       );
 
-      // const userData = data.user;
-      // const token = user.token;
-      console.log("dataOnComplete ", data);
+      const token = user.token;
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: data.user._id,
-          isEmailVerified: data.user.emailVerified,
-          token: user.token,
-        })
-      );
-      // dispatch(signIn({ userData, token }));
+      dispatch(setUserData({ user: result.user, token }));
 
       setTimeout(() => {
         console.log("Navigating to /auth");
         localStorage.removeItem("otp_data");
-        // navigate("/auth", { replace: true });
-        window.location.replace("/auth");
+        navigate("/", { replace: true });
       }, 3000); // Adjust timeout as necessary
     } catch (error) {
       console.log(error);
@@ -128,7 +129,7 @@ const OtpVerification = () => {
         </button>
       </div>
       {isLoading && <LoadingSpinner />}
-      <Toaster position="bottom-right" reverseOrder={false} />
+      <Toaster position="bottom-right" />
     </div>
   );
 };

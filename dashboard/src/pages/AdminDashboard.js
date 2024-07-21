@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
@@ -20,16 +20,15 @@ import insta from "../assets/insta.png";
 import twitter from "../assets/twitter.png";
 import fb from "../assets/fb.png";
 import { IoMdClose, IoMdSunny } from "react-icons/io";
-import { GoSun } from "react-icons/go";
 import { BsFillMoonStarsFill } from "react-icons/bs";
+
 const AdminDashboard = () => {
   const drawerWidth = 240;
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
 
-  // const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  // const [isClosing, setIsClosing] = React.useState(false);
   const { user, drawerOpen, isDarkMode } = useSelector((state) => state.user);
 
   if (!user) {
@@ -39,6 +38,7 @@ const AdminDashboard = () => {
   const handleDrawerClose = () => {
     dispatch(setDrawerOpen(false));
   };
+
   const sidebarItems = [
     {
       itemText: "Dashboard",
@@ -72,16 +72,24 @@ const AdminDashboard = () => {
     },
   ];
 
+  useEffect(() => {
+    // Find the index of the sidebar item that matches the current path
+    const path = location.pathname.split("/").pop(); // Get the last part of the path
+    const index = sidebarItems.findIndex((item) => item.path === path);
+    setSelectedIndex(index);
+  }, [location.pathname]);
+
   const handleListItemClick = (index, path) => {
     setSelectedIndex(index);
-    navigate(path);
+    navigate(`/dashboard/${path}`);
   };
+
   const toggleModeHandler = () => {
     dispatch(toggleMode());
   };
 
   return (
-    <div id="dashboard" className="flex h-full  ">
+    <div id="dashboard" className="flex h-full">
       <div className="md:flex hidden">
         <Drawer
           onClose={handleDrawerClose}
@@ -99,16 +107,14 @@ const AdminDashboard = () => {
               backgroundColor: `${isDarkMode ? "#1e293b" : "white"}`,
             },
             "& .MuiListItemButton-root": {
-              // Apply width to the ListItemButton
-              // or any specific value you prefer
-              justifyContent: "center ",
+              justifyContent: "center",
             },
           }}
           variant="permanent"
           anchor="left"
-          className="hidden md:block "
+          className="hidden md:block"
         >
-          <List className="overflow-hidden ">
+          <List className="overflow-hidden">
             {sidebarItems.map((item, index) => (
               <ListItem key={index}>
                 <ListItemButton
@@ -119,29 +125,27 @@ const AdminDashboard = () => {
                     selectedIndex === index
                       ? ` dark:bg-white dark:text-zinc-900 bg-gray-800 text-white`
                       : " dark:text-white text-gray-900-700"
-                  }  font-Poppins rounded-full px-1.5`}
+                  } font-Poppins rounded-full px-1.5`}
                 >
                   <ListItemIcon
                     className={`${
                       selectedIndex === index
                         ? "dark:bg-white dark:text-zinc-900 bg-inherit text-white"
                         : " dark:text-white text-gray-900-700"
-                    } mx-8 `}
+                    } mx-8`}
                   >
                     {item.icon}
                   </ListItemIcon>
-                  {/* <Link to={item.path}> */}
                   <ListItemText
                     className="font-Poppins -mx-12"
                     primary={item.itemText}
                   />
-                  {/* </Link> */}
                 </ListItemButton>
               </ListItem>
             ))}
           </List>
-          <Divider />
-          <div className=" h-20 flex w-full justify-center cursor-pointer">
+          <Divider className="dark:bg-gray-600" />
+          <div className="h-20 flex w-full justify-center cursor-pointer">
             <IconButton onClick={toggleModeHandler}>
               {isDarkMode ? (
                 <IoMdSunny className="h-full size-6 dark:text-white font-bold" />
@@ -160,6 +164,7 @@ const AdminDashboard = () => {
             sx={{
               width: drawerWidth,
               flexShrink: 0,
+              backgroundColor: `${isDarkMode ? "#1e293b" : "white"}`,
               overflow: "hidden",
               "& .MuiDrawer-paper": {
                 width: drawerWidth,
@@ -229,12 +234,9 @@ const AdminDashboard = () => {
                       "&.Mui-selected": {
                         backgroundColor: "#282C35",
                         borderRadius: "50px",
-                        // height: "2.5rem",
-
                         "&:hover": {
-                          backgroundColor: "#282C35", // Keep the background color on hover
+                          backgroundColor: "#282C35",
                         },
-
                         color: "white",
                         "& .MuiListItemIcon-root": {
                           color: "white",
@@ -248,7 +250,7 @@ const AdminDashboard = () => {
                         selectedIndex === index
                           ? "bg-inherit text-white"
                           : "text-gray-900-700"
-                      } mx-8 `}
+                      } mx-8`}
                     >
                       {item.icon}
                     </ListItemIcon>
@@ -264,7 +266,7 @@ const AdminDashboard = () => {
           </Drawer>
         </div>
       </div>
-      <div className="w-full  px-6 py-4 h-svh overflow-auto  ">
+      <div className="w-full px-6 py-4 h-svh overflow-auto">
         <Outlet />
       </div>
     </div>

@@ -17,31 +17,42 @@ const icons = {
   users: MdPeople,
 };
 
+const calculateDiff = (current, previous) => {
+  if (previous === 0) return current === 0 ? 0 : 100;
+  return ((current - previous) / previous) * 100;
+};
+
 const Stats = ({ data }) => {
   const StatsData = [
     {
       title: "TOTAL POST",
       icon: "post",
       value: formatNumber(data?.totalPosts ?? 0),
-      diff: 34,
+      diff: calculateDiff(data?.totalPosts ?? 0, data?.previousTotalPosts ?? 0),
     },
     {
       title: "FOLLOWERS",
       icon: "users",
       value: formatNumber(data?.followers ?? 0),
-      diff: -13,
+      diff: calculateDiff(
+        data?.followers ?? 0,
+        data?.previousTotalFollowers ?? 0
+      ),
     },
     {
       title: "TOTAL VIEWS",
       icon: "view",
       value: formatNumber(data?.totalViews ?? 0),
-      diff: 18,
+      diff: calculateDiff(data?.totalViews ?? 0, data?.previousTotalViews ?? 0),
     },
     {
       title: "TOTAL WRITERS",
       icon: "user",
       value: formatNumber(data?.totalWriters ?? 0),
-      diff: -30,
+      diff: calculateDiff(
+        data?.totalWriters ?? 0,
+        data?.previousTotalWriters ?? 0
+      ),
     },
   ];
 

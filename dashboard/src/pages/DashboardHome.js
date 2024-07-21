@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useHttpRequest from "../hooks/useHttpRequest";
 import Stats from "../components/Stats";
 import Graph from "../components/Graph";
@@ -9,37 +9,38 @@ import {
 } from "../components/RecentFollowerTable";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { Toaster } from "react-hot-toast";
+import { setStatsData } from "../store/statsSlice";
 
 const DashboardHome = () => {
   const { isLoading, sendRequest } = useHttpRequest();
   const { user } = useSelector((state) => state.user);
+  const statData = useSelector((state) => state.stats.statsData);
 
-  const [statData, setStatData] = useState(null);
+  const dispatch = useDispatch();
 
   const val = "28";
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await sendRequest(
-          "POST",
-          `posts/admin-analytics?query=${val}`,
-          null,
-          {
-            Authorization: `Bearer ${user.token}`,
-          }
-        );
-        // console.log("analysis data", data);
-        setStatData(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    if (user.isEmailVerified) {
+      const fetchData = async () => {
+        try {
+          const data = await sendRequest(
+            "POST",
+            `posts/admin-analytics?query=${val}`,
+            null,
+            {
+              Authorization: `Bearer ${user.token}`,
+            }
+          );
 
-    fetchData();
+          dispatch(setStatsData(data));
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      fetchData();
+    }
   }, []);
-
-  // console.log("statdata", statData);
 
   return (
     <div className="w-full   ">

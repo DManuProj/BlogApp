@@ -1,37 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useHttpRequest from "../hooks/useHttpRequest";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import Stats from "../components/Stats";
 import Graph from "../components/Graph";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { Toaster } from "react-hot-toast";
+import { setAnalyticsData } from "../store/analyticsSlice";
 
 const Analytics = () => {
   const { user, isDarkMode } = useSelector((state) => state.user);
   const { isLoading, sendRequest } = useHttpRequest();
   const [numOfDays, setNumberOfDays] = useState(28);
-  const [statData, setStatData] = useState(null);
+
+  const statData = useSelector((state) => state.analytics.analyticsData);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await sendRequest(
-          "POST",
-          `posts/admin-analytics?query=${numOfDays}`,
-          null,
-          {
-            Authorization: `Bearer ${user.token}`,
-          }
-        );
-        // console.log("analysis data", data);
-        setStatData(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    if (user.isEmailVerified) {
+      const fetchData = async () => {
+        try {
+          const data = await sendRequest(
+            "POST",
+            `posts/admin-analytics?query=${numOfDays}`,
+            null,
+            {
+              Authorization: `Bearer ${user.token}`,
+            }
+          );
+          dispatch(setAnalyticsData(data));
+        } catch (error) {
+          console.error(error);
+        }
+      };
 
-    fetchData();
+      fetchData();
+    }
   }, [numOfDays]);
 
   const handleChange = (event) => {
@@ -40,7 +45,6 @@ const Analytics = () => {
     setNumberOfDays(val);
   };
 
-  console.log("numbOfdates", numOfDays);
   return (
     <div>
       <div className="w-full flex items-center justify-between mb-3  dark:text-white">
@@ -80,11 +84,11 @@ const Analytics = () => {
         {statData && <Graph data={statData.viewStats} />}
       </div>
 
-      <div className="w-full py-8">
-        <p className="py-5 text-base font-medium dark:text-white ">
+      <div className="w-full mb-8 dark:text-white py-8">
+        <p className="py-2 text-base font-medium dark:text-white ">
           Followers Stats for last {numOfDays} days
         </p>
-        {statData && <Graph data={statData.viewStats} />}
+        {statData && <Graph data={statData.followersStats} />}
       </div>
 
       {isLoading && <LoadingSpinner />}

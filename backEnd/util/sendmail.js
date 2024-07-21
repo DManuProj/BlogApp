@@ -35,7 +35,7 @@ const sendVerificationEmail = async (user, res, token) => {
   // Email body
   const emailBody = {
     body: {
-      name: name,
+      name: name.split(" ")[0],
       intro: "Welcome to DHive! We're very excited to have you on board.",
       action: [
         {
@@ -80,9 +80,8 @@ const sendVerificationEmail = async (user, res, token) => {
         .sendMail(mailOptions)
         .then(() => {
           res.status(201).send({
-            success: "PENDING",
-            message:
-              "OTP has been sent to your account. Check your email and verify your email.",
+            success: true,
+            message: "OTP has been sent to your email.",
             user,
             token,
           });

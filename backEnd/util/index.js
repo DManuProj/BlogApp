@@ -14,9 +14,9 @@ const hashPassword = async (userValue) => {
 };
 
 //compare the password
-const comparePassword = async (userPassword, password) => {
+const compareString = async (string, hashedString) => {
   try {
-    const isMatch = await bcrypt.compare(userPassword, password);
+    const isMatch = await bcrypt.compare(string, hashedString);
     return isMatch;
   } catch (error) {
     console.log(error);
@@ -30,7 +30,7 @@ const comparePassword = async (userPassword, password) => {
 
 const createJWT = (id) => {
   return JWT.sign({ userId: id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: "1h",
+    expiresIn: "2h",
   });
 };
 
@@ -47,4 +47,4 @@ const generateOTP = () => {
   return randomNumber;
 };
 
-module.exports = { hashPassword, comparePassword, createJWT, generateOTP };
+module.exports = { hashPassword, compareString, createJWT, generateOTP };

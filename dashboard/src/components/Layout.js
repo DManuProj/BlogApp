@@ -1,44 +1,33 @@
 import React, { useEffect, useState } from "react";
-import fb from "../assets/fb.png";
-import insta from "../assets/insta.png";
-import twitter from "../assets/twitter.png";
-import logo from "../assets/Logo.png";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import AdminDashboard from "../pages/AdminDashboard";
-import { BsFillMoonStarsFill } from "react-icons/bs";
-
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Avatar,
   Box,
-  Divider,
   IconButton,
-  ListItemIcon,
   Menu,
   MenuItem,
+  ListItemIcon,
+  Button,
 } from "@mui/material";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { MdArrowForward } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
 import { CiLogout } from "react-icons/ci";
+import { IoMdMenu, IoMdSunny } from "react-icons/io";
+import { LuSettings } from "react-icons/lu";
+import { BsFillMoonStarsFill } from "react-icons/bs";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   setDrawerOpen,
   signInModal,
   signOut,
   toggleMode,
 } from "../store/userSlice";
-import { IoMdMenu } from "react-icons/io";
-import LoadingSpinner from "./LoadingSpinner";
-
-import { IoMdSunny } from "react-icons/io";
-import { LuSettings } from "react-icons/lu";
-// import LoginForm from "./form/LoginForm";
-
-// const MobileDrawer = () => {
-// <IoMdMenu />;
-// }
+import fb from "../assets/fb.png";
+import insta from "../assets/insta.png";
+import twitter from "../assets/twitter.png";
+import logo from "../assets/Logo.png";
 
 const UserMenu = ({ user, theme }) => {
-  // const { user, isOTPLevel, signInModal } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -60,14 +49,17 @@ const UserMenu = ({ user, theme }) => {
 
   const navigateToSettings = () => {
     navigate("/dashboard/settings");
-    handleClose(); // Close menu after navigation
+    handleClose();
   };
 
-  const firstName = user.name.trim().split(/\s+/)[0];
-  const initials = user.name
-    .split(" ")
-    .map((word) => word[0])
-    .join("");
+  if (user) {
+    var firstName = user.name.trim().split(/\s+/)[0];
+    var initials = user.name
+      .split(" ")
+      .map((word) => word[0])
+      .join("");
+  }
+
   return (
     <>
       <Box
@@ -138,7 +130,7 @@ const UserMenu = ({ user, theme }) => {
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem onClick={handleSignOut}>
+        <MenuItem onClick={handleSignOut} style={{ color: "red" }}>
           <ListItemIcon>
             <CiLogout />
           </ListItemIcon>
@@ -150,9 +142,9 @@ const UserMenu = ({ user, theme }) => {
 };
 
 const Layout = ({ children }) => {
-  const { user, isOTPLevel, isLoading, drawerOpen, isDarkMode } = useSelector(
-    (state) => state.user
-  );
+  const { user, isLoading, isDarkMode } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const location = useLocation();
 
   useEffect(() => {
     if (isDarkMode) {
@@ -166,18 +158,6 @@ const Layout = ({ children }) => {
     dispatch(toggleMode());
   };
   const isMdScreen = useMediaQuery("(max-width:768px)");
-  const isSmScreen = useMediaQuery("(min-width:600px)");
-  const dispatch = useDispatch();
-
-  const location = useLocation();
-
-  {
-    /* {user.token ? (
-          <AdminDashboard />
-        ) : (
-          <Navigate to="/auth" state={{ from: location }} replace />
-        )} */
-  }
 
   const handleLogin = () => {
     dispatch(signInModal(true));
@@ -191,7 +171,7 @@ const Layout = ({ children }) => {
     <div className="dark:bg-slate-800 bg-white">
       <div
         style={{ overflow: "hidden " }}
-        className=" border-b dark:border-gray-500 border-gray-200 border-solid flex justify-between items-center h-20 w-full px-8  py-2  "
+        className=" border-b dark:border-gray-500 border-gray-200 border-solid flex justify-between items-center h-20 w-full px-8 py-2"
       >
         <div
           style={{
@@ -217,7 +197,7 @@ const Layout = ({ children }) => {
 
         {location.pathname !== "/auth" && isMdScreen && (
           <IoMdMenu
-            className=" size-8 cursor-pointer"
+            className=" size-8 dark:text-white cursor-pointer"
             onClick={handleOpenDrawer}
           />
         )}
@@ -227,7 +207,7 @@ const Layout = ({ children }) => {
         </div>
 
         <div className="flex gap-14 items-center">
-          <div className="flex gap-2 items-center   ">
+          <div className="flex gap-2 items-center">
             {location.pathname === "/auth" && (
               <IconButton onClick={toggleModeHandler}>
                 {isDarkMode ? (
@@ -238,11 +218,25 @@ const Layout = ({ children }) => {
               </IconButton>
             )}
 
-            {user?.token ? (
-              <UserMenu user={user} />
+            {user && user.token ? (
+              user.isEmailVerified ? (
+                <UserMenu user={user} />
+              ) : (
+                <Link
+                  to="/otp-verification"
+                  state={{ from: location.pathname }}
+                >
+                  <Button
+                    size="medium"
+                    variant="contained"
+                    className="bg-sky-600 font-bold text-lg dark:bg-white dark:text-black rounded-xl"
+                  >
+                    Verify Email
+                  </Button>
+                </Link>
+              )
             ) : (
               <Link
-                // to="login"
                 onClick={handleLogin}
                 className="flex items-center gap-2 dark:text-white rounded-full 2XL:mr-10 text-base"
               >
@@ -250,12 +244,11 @@ const Layout = ({ children }) => {
                 <MdArrowForward />
               </Link>
             )}
-            {/* <UserMenu user={user?.user} /> */}
           </div>
         </div>
       </div>
       <div>{children}</div>
-      {isLoading && <LoadingSpinner />}
+      {/* {isLoading && <LoadingSpinner />} */}
     </div>
   );
 };

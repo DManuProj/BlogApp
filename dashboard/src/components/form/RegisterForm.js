@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Button, Box, Typography, Grid, LinearProgress } from "@mui/material";
 import { Formik, Form } from "formik";
-import TextfieldUI from "./TextfieldUI";
+import TextfieldUI from "../TextfieldUI";
 import FileInput from "./FileUpload";
 import useHttpRequest from "../../hooks/useHttpRequest";
 import * as Yup from "yup";
 import LoadingSpinner from "../LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { uploadFile } from "../../util";
-import { setOTPData, signIn } from "../../store/userSlice";
+import { setUserData } from "../../store/userSlice";
 import { useDispatch } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const RegisterForm = ({ setIsSignIn }) => {
+const RegisterForm = ({ setCurrentForm }) => {
   const { isLoading, sendRequest } = useHttpRequest();
   const [error, setError] = useState(null);
   const [file, setFile] = useState("");
@@ -35,6 +35,7 @@ const RegisterForm = ({ setIsSignIn }) => {
     lastName: "",
     email: "",
     password: "",
+    role: "",
     image: null,
   };
 
@@ -52,6 +53,7 @@ const RegisterForm = ({ setIsSignIn }) => {
       .min(5, "Password must be at least 5 characters"),
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
+    role: Yup.string().required("Role Name is required"),
     image: Yup.mixed()
       .required("Profile Image is required")
       .test(
@@ -87,23 +89,14 @@ const RegisterForm = ({ setIsSignIn }) => {
       image: fileURL,
       accountType: "Writer",
     };
-    console.log(updatedForm);
+
     try {
       const data = await sendRequest("POST", "auth/register", updatedForm);
       const user = data.user;
       const token = data.token;
-      console.log("Data", data);
-      dispatch(signIn({ user, token }));
+      dispatch(setUserData({ user, token }));
 
-      // Dispatch the setOTPData action to update the Redux store with OTP data
-      dispatch(
-        setOTPData({
-          otpLevel: true,
-          id: user._id,
-        })
-      );
       setTimeout(() => {
-        // window.location.replace("/otp-verification");
         navigate("/otp-verification", { replace: true });
       }, 3000);
     } catch (error) {
@@ -140,6 +133,10 @@ const RegisterForm = ({ setIsSignIn }) => {
                   </div>
                 </Grid>
               </Grid>
+              <div>
+                <p>Role*</p>
+                <TextfieldUI name="role" />
+              </div>
               <div>
                 <p>Email*</p>
                 <TextfieldUI name="email" />
@@ -180,10 +177,11 @@ const RegisterForm = ({ setIsSignIn }) => {
               </div>
               <Button
                 type="submit"
+                size="medium"
                 variant="contained"
-                className="  bg-slate-900 text-lg"
+                className="bg-sky-600 font-bold text-lg dark:bg-white dark:text-black rounded-xl"
               >
-                Signup
+                Sign Up
               </Button>
               {isLoading && <LoadingSpinner />}
             </Form>
@@ -194,7 +192,7 @@ const RegisterForm = ({ setIsSignIn }) => {
       <p className="p-2 dark:text-white">
         Already have an account?{" "}
         <span
-          onClick={() => setIsSignIn((prev) => !prev)}
+          onClick={() => setCurrentForm("login")}
           className="text-blue-700 cursor-pointer"
         >
           SignIn

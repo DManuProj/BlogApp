@@ -31,31 +31,32 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { setOpenComments, setCommentId } from "../store/commentsSlice";
 import { Toaster } from "react-hot-toast";
 import Comments from "../components/Comments";
+import { setContentData } from "../store/contentSlices";
 
 const Content = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user } = useSelector((state) => state.user);
-  const { openComment, commentId } = useSelector((state) => state.comments);
+  const { user, isDarkMode } = useSelector((state) => state.user);
+  const { openComment } = useSelector((state) => state.comments);
   const [selected, setSelected] = useState("");
   const [type, setType] = useState(null);
   const [status, setStatus] = useState(null);
   const [page, setPage] = useState(searchParams.get("page") || 1);
   const [open, setOpen] = useState(false);
-  const [contentData, setContentData] = useState([]);
-  const [totalPosts, setTotalPosts] = useState(0);
-  // const [isPending, setIsPending] = useState(false);
   const [actionMenu, setActionMenu] = useState(null);
   const { isLoading, sendRequest } = useHttpRequest();
 
   const dispatch = useDispatch();
+  const { contentData, numOfPages, totalPosts } = useSelector(
+    (state) => state.contents
+  );
 
   const fetchContent = async () => {
     updateURL({ page, navigate, location });
 
     try {
-      const data = await sendRequest(
+      const result = await sendRequest(
         "POST",
         `posts/admin-content?page=${page}`,
         null,
@@ -63,15 +64,11 @@ const Content = () => {
           Authorization: `Bearer ${user.token}`,
         }
       );
-      console.log("analytics data", data);
-      setContentData(data.data);
-      setTotalPosts(data.data.length);
+
+      dispatch(setContentData(result));
     } catch (error) {
       console.log(error);
     }
-
-    //  setContentData(exampleData);
-    //  setTotalPosts(exampleData.length);
   };
 
   const handleComment = (id, size) => {
@@ -91,7 +88,7 @@ const Content = () => {
   const handleActions = async () => {
     switch (type) {
       case "delete":
-        // Perform delete actionc
+        // Perform delete action
         await sendRequest("DELETE", `posts/${selected}`, {
           Authorization: `Bearer ${user.token}`,
         });
@@ -118,11 +115,15 @@ const Content = () => {
   const handleClick = (event) => {
     setActionMenu(event.currentTarget);
   };
+
   const handleClose = () => {
     setActionMenu(null);
   };
+
   useEffect(() => {
-    fetchContent();
+    if (user.isEmailVerified) {
+      fetchContent();
+    }
   }, [page]);
 
   return (
@@ -166,7 +167,7 @@ const Content = () => {
             {contentData.length > 0 &&
               contentData.map((el) => (
                 <TableRow key={el._id} className="to-gray-400 ">
-                  <TableCell className="flex gap-2 items-center dark:text-white">
+                  <TableCell className="flex gap-4 items-center dark:text-white">
                     <img
                       src={el.img}
                       alt={el.title}
@@ -181,7 +182,7 @@ const Content = () => {
                     <IconButton>
                       <AiOutlineEye className="dark:text-white " />
                     </IconButton>
-                    {el.views.length ? el.views : 0}
+                    {el.views.length ? el.views.length : 0}
                   </TableCell>
                   <TableCell className="dark:text-white " align="center">
                     <IconButton
@@ -254,10 +255,20 @@ const Content = () => {
 
       <div className="w-full mt-5 flex items-center justify-center">
         <Pagination
-          className="dark:bg-white "
-          count={totalPosts}
-          page={page}
+          count={numOfPages}
           onChange={(e, value) => setPage(value)}
+          size="large"
+          color="primary"
+          sx={{
+            "& .MuiPaginationItem-root": {
+              color: `${isDarkMode ? "white" : ""}`,
+            },
+            "& .MuiPaginationItem-root.Mui-selected": {
+              backgroundColor: `${isDarkMode ? "white" : "#1f2937"}`, // Customize the background color for selected item
+              color: `${isDarkMode ? "black" : "primary"}`, // Ensure text color is readable against the background
+              borderRadius: "50%", // Optional: Make the selected item a circle
+            },
+          }}
         />
       </div>
 
