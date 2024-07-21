@@ -10,7 +10,7 @@ const useHttpRequest = () => {
     async (
       method,
       url,
-      data = null,
+      data,
       headers = { "Content-Type": "application/json" },
       config
     ) => {
@@ -34,7 +34,8 @@ const useHttpRequest = () => {
 
         return response.data;
       } catch (error) {
-        const errorMessage = error.response?.data?.message || error.message;
+        const errorMessage =
+          error.response?.data?.message || "Something went wrong";
         setError(errorMessage);
         toast.error(errorMessage);
 

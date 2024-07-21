@@ -1,6 +1,7 @@
-const { comparePassword, createJWT, hashPassword } = require("../util");
+const { compareString, createJWT, hashPassword } = require("../util");
 
-const User = require("../models/userSchema");
+const userSchema = require("../models/userSchema");
+
 const sendVerificationEmail = require("../util/sendmail");
 
 const userSignup = async (req, res, next) => {
@@ -13,14 +14,11 @@ const userSignup = async (req, res, next) => {
       image,
       accountType,
       provider,
+      role,
     } = req.body;
 
-    // if (accountType === "writer" && !image) {
-    //   return next("Please provide profile picture");
-    // }
-
     //check if user mail is exists
-    const isUserExist = await User.findOne({ email });
+    const isUserExist = await userSchema.findOne({ email });
 
     if (isUserExist) {
       return next("Email is already exists");
@@ -28,17 +26,18 @@ const userSignup = async (req, res, next) => {
 
     const hashedPassword = await hashPassword(password);
 
-    const user = await User({
+    const user = await userSchema({
       name: firstName + " " + lastName,
       email,
       password: !provider ? hashedPassword : "",
       image,
       accountType,
       provider,
+      role,
     });
 
     const token = createJWT(user._id);
-
+    //create the register user with email and create the otp function
     try {
       await user.save();
       await sendVerificationEmail(user, res, token);
@@ -46,12 +45,6 @@ const userSignup = async (req, res, next) => {
       console.log(error);
       res.status(500).json({ message: error.message });
     }
-    // res.status(201).json({
-    //   success: true,
-    //   message: "Account created successfully",
-    //   user,
-    //   token,
-    // });
   } catch (error) {
     console.log(error);
     res.status(404).json({ message: "email is not valid" });
@@ -60,15 +53,18 @@ const userSignup = async (req, res, next) => {
 
 const googleSignup = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, emailVerified } = req.body;
+    const { name, email, image, emailVerified } = req.body;
 
-    const isUserExist = await User.findOne({ email });
+    const isUserExist = await userSchema.findOne({ email });
 
     if (isUserExist) {
-      next("Email Address already exists!!");
+      return res.status(400).json({
+        success: false,
+        message: "Email already exits!",
+      });
     }
 
-    const user = await User.create({
+    const user = await userSchema.create({
       name,
       email,
       image,
@@ -88,7 +84,7 @@ const googleSignup = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(404).json({ message: error.message });
+    res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
 
@@ -100,31 +96,12 @@ const login = async (req, res, next) => {
       return next("please provide the user credentials");
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await userSchema.findOne({ email }).select("+password");
 
     if (!user) {
-      res.status(404).json({ message: "Invalid email or password" });
-      return next("Invalid email or password");
-    }
-
-    //google account login
-
-    if (user.provider === "Google" && !password) {
-      const token = createJWT(user?._id);
-
-      res.status(201).json({
-        success: true,
-        message: "Account created successfully",
-        user,
-        token,
-      });
-    }
-
-    //compare password
-    const isMatch = await comparePassword(password, user.password);
-
-    if (!isMatch) {
-      return next("Invalid email or password");
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email or password" });
     }
 
     //email verified
@@ -132,19 +109,38 @@ const login = async (req, res, next) => {
       return next("Please verify your email address");
     }
 
-    // user.password = undefined;
+    //google account login
 
-    const token = createJWT(user?._id);
+    if (user.provider === "Google" && !password) {
+      const token = createJWT(user?._id);
 
-    res.status(201).json({
-      success: true,
-      message: "Account login successful",
-      user,
-      token,
-    });
+      res.status(200).json({
+        success: true,
+        message: "Account Login successfully",
+        user,
+        token,
+      });
+    } else {
+      //compare password
+      const isMatch = await compareString(password, user.password);
+
+      if (!isMatch) {
+        return next("Invalid email or password");
+      }
+
+      user.password = undefined;
+      const token = createJWT(user?._id);
+
+      res.status(201).json({
+        success: true,
+        message: "Account login successful",
+        user,
+        token,
+      });
+    }
   } catch (error) {
     console.log(error);
-    res.status(404).json({ message: error.message });
+    res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
 

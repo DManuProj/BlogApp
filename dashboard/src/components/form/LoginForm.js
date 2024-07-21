@@ -1,31 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Box,
   Typography,
-  Grid,
   IconButton,
   InputAdornment,
 } from "@mui/material";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Formik, Form } from "formik";
-import TextField from "./TextfieldUI";
+import TextField from "../TextfieldUI";
 import useHttpRequest from "../../hooks/useHttpRequest";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
-import { signIn } from "../../store/userSlice";
+import { setUserData } from "../../store/userSlice";
 import LoadingSpinner from "../LoadingSpinner";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
-const LoginForm = ({ setIsSignIn, user }) => {
+const LoginForm = ({ setCurrentForm, user }) => {
   const { isLoading, sendRequest } = useHttpRequest();
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
-
-  const navigate = useNavigate();
 
   const INITIAL_VALUES = {
     email: "",
@@ -38,23 +34,16 @@ const LoginForm = ({ setIsSignIn, user }) => {
   });
 
   const submitHandler = async (values) => {
-    console.log(values);
     try {
       const data = await sendRequest("POST", "auth/login", values);
       const user = data.user;
       const token = data.token;
-      console.log("Data ", data);
 
       setTimeout(() => {
-        dispatch(signIn({ user, token }));
-        // window.location.replace("/dashboard");
-        navigate("/dashboard", { replace: true });
+        dispatch(setUserData({ user, token }));
       }, 3000);
     } catch (error) {
       console.error("Request failed:", error);
-      // const errorMessage = error.response?.data?.message || error.message;
-      // setError(errorMessage);
-      // toast.error(errorMessage);
     }
   };
 
@@ -94,12 +83,14 @@ const LoginForm = ({ setIsSignIn, user }) => {
                 }}
               />
             </div>
+
             <Button
               type="submit"
+              size="medium"
               variant="contained"
-              className="  bg-slate-900 text-lg"
+              className="bg-sky-600 font-bold text-lg dark:bg-white dark:text-black rounded-xl"
             >
-              SignIn
+              Sign In
             </Button>
           </Form>
         )}
@@ -107,10 +98,19 @@ const LoginForm = ({ setIsSignIn, user }) => {
       <p className="p-2 dark:text-fuchsia-50">
         Don't have an account?{" "}
         <span
-          onClick={() => setIsSignIn((prev) => !prev)}
+          onClick={() => setCurrentForm("register")}
           className="text-blue-700 cursor-pointer"
         >
-          SignUp
+          Sign Up
+        </span>
+      </p>
+      <p className="p-2 dark:text-fuchsia-50">
+        Forgot Password?{" "}
+        <span
+          onClick={() => setCurrentForm("forgetPassword")}
+          className="text-blue-700 cursor-pointer"
+        >
+          Reset Here
         </span>
       </p>
       <Toaster position="bottom-right" reverseOrder={false} />

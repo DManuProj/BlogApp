@@ -7,7 +7,7 @@ const initialState = {
   isDarkMode:
     localStorage.getItem("isDarkMode") !== undefined
       ? JSON.parse(localStorage.getItem("isDarkMode"))
-      : false, //light mode is the default
+      : false, // light mode is the default
   drawerOpen: false,
 };
 
@@ -15,8 +15,8 @@ const userSlice = createSlice({
   name: "userData",
   initialState,
   reducers: {
-    signIn: (state, action) => {
-      console.log("in the store", action.payload);
+    setUserData: (state, action) => {
+      const tokenExpirationTime = new Date().getTime() + 2 * 60 * 60 * 1000;
       const userData = {
         id: action.payload.user._id,
         name: action.payload.user.name,
@@ -24,24 +24,17 @@ const userSlice = createSlice({
         isEmailVerified: action.payload.user.emailVerified,
         account: action.payload.user.accountType,
         image: action.payload.user.image,
+        expiresIn: tokenExpirationTime,
       };
       state.user = userData;
 
-      localStorage.setItem("user", JSON.stringify(userData));
-    },
-    updateUser: (state, action) => {
-      console.log("in the store", action.payload);
-      const userData = {
-        id: action.payload.updatedUser._id,
-        name: action.payload.updatedUser.name,
-        token: action.payload.token,
-        isEmailVerified: action.payload.updatedUser.emailVerified,
-        account: action.payload.updatedUser.accountType,
-        image: action.payload.updatedUser.image,
-      };
-      state.user = userData;
-
-      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...userData,
+          expiresIn: tokenExpirationTime,
+        })
+      );
     },
     signInModal: (state, action) => {
       state.signInModalOpen = action.payload;
@@ -61,13 +54,6 @@ const userSlice = createSlice({
   },
 });
 
-export const {
-  signIn,
-  setPT,
-  signOut,
-  signInModal,
-  setDrawerOpen,
-  updateUser,
-  toggleMode,
-} = userSlice.actions;
+export const { setUserData, signInModal, setDrawerOpen, signOut, toggleMode } =
+  userSlice.actions;
 export default userSlice.reducer;

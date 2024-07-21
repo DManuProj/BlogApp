@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 import toast, { Toaster } from "react-hot-toast";
@@ -18,43 +18,45 @@ import {
 import useHttpRequest from "../hooks/useHttpRequest";
 import { formatNumber, getInitials, updateURL } from "../util";
 import moment from "moment";
+import { setFollowerData } from "../store/followerSlice";
 
 const Followers = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.user);
+  const { user, isDarkMode } = useSelector((state) => state.user);
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(searchParams.get("page") || 1);
-  const [followers, setFollowers] = useState([]);
-  const { isLoading, sendRequest, error } = useHttpRequest();
+  // const [followers, setFollowers] = useState([]);
+  const { isLoading, sendRequest } = useHttpRequest();
+
+  const dispatch = useDispatch();
+
+  const { followersData, numOfPages, totalFollowers, currentPage } =
+    useSelector((state) => state.followers);
 
   useEffect(() => {
-    const fetchFollowers = async () => {
-      try {
-        const followersData = await sendRequest(
-          "POST",
-          `posts/admin-followers?page=${page}`,
-          null,
-          {
-            Authorization: `Bearer ${user.token}`,
+    if (user.isEmailVerified && followersData.length === 0) {
+      const fetchFollowers = async () => {
+        try {
+          const result = await sendRequest(
+            "POST",
+            `posts/admin-followers?page=${page}`,
+            null,
+            {
+              Authorization: `Bearer ${user.token}`,
+            }
+          );
+          if (result) {
+            dispatch(setFollowerData(result));
           }
-        );
-        if (followersData) {
-          toast.success("Data Loaded Successfully");
-          setFollowers(followersData);
+        } catch (err) {
+          console.log(err);
         }
-      } catch (err) {
-        console.log(err);
-        const errMsg = error?.response?.data?.message;
-        toast.error(errMsg ?? error.message);
-        if (errMsg === "Authentication failed") {
-          localStorage.removeItem("user");
-        }
-      }
-    };
+      };
 
-    fetchFollowers();
-    updateURL({ page, navigate, location });
+      fetchFollowers();
+      updateURL({ page, navigate, location });
+    }
   }, [page]);
 
   const handlePageChange = (event, value) => {
@@ -71,9 +73,9 @@ const Followers = () => {
       >
         Followers (
         <span className="text-sm">
-          {followers.data?.length * followers.page +
+          {followersData.length * currentPage +
             " of " +
-            followers.total +
+            totalFollowers +
             " records"}
         </span>
         )
@@ -90,7 +92,7 @@ const Followers = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {followers.data?.map(({ _id, followerId, createdAt }) => (
+            {followersData?.map(({ _id, followerId, createdAt }) => (
               <TableRow key={_id} className="text-slate-600 dark:text-white ">
                 <TableCell className="flex gap-2 items-center">
                   {followerId.image ? (
@@ -121,10 +123,12 @@ const Followers = () => {
                     {formatNumber(followerId?.followers.length ?? 0)}
                   </div>
                 </TableCell>
-                <TableCell>{moment(createdAt).fromNow()}</TableCell>
+                <TableCell className="dark:text-white ">
+                  {moment(createdAt).fromNow()}
+                </TableCell>
               </TableRow>
             ))}
-            {followers.data?.length < 1 && (
+            {followersData?.length < 1 && (
               <TableRow>
                 <TableCell
                   colSpan={4}
@@ -141,14 +145,20 @@ const Followers = () => {
 
       <div className="w-full mt-5 flex items-center justify-center">
         <Pagination
-          count={followers.numOfPages}
-          page={parseInt(page, 10)}
+          count={numOfPages}
           onChange={handlePageChange}
-          siblingCount={1}
-          defaultPage={followers.page}
-          boundaryCount={1}
+          size="large"
           color="primary"
-          className="dark:bg-white"
+          sx={{
+            "& .MuiPaginationItem-root": {
+              color: `${isDarkMode ? "white" : ""}`,
+            },
+            "& .MuiPaginationItem-root.Mui-selected": {
+              backgroundColor: `${isDarkMode ? "white" : "#1f2937"}`, // Customize the background color for selected item
+              color: `${isDarkMode ? "black" : "primary"}`, // Ensure text color is readable against the background
+              borderRadius: "50%", // Optional: Make the selected item a circle
+            },
+          }}
         />
       </div>
 

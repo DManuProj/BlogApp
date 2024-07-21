@@ -1,9 +1,9 @@
 import React from "react";
-import { TextField } from "@mui/material";
+import { InputAdornment, TextField } from "@mui/material";
 import { useField } from "formik";
 import { useSelector } from "react-redux";
 
-const TextfieldUI = ({ name, ...otherProps }) => {
+const TextfieldUI = ({ name, icon, ...otherProps }) => {
   const { isDarkMode } = useSelector((state) => state.user);
   const [field, meta] = useField(name);
 
@@ -14,29 +14,29 @@ const TextfieldUI = ({ name, ...otherProps }) => {
     variant: "outlined",
     size: "small",
     sx: {
-      color: isDarkMode ? "white" : "rgba(0, 0, 0, 0.87)", // Text color for input and label
+      color: isDarkMode ? "white" : "rgba(0, 0, 0, 0.87)",
       "& .MuiOutlinedInput-input": {
-        color: isDarkMode ? "white" : "rgba(0, 0, 0, 0.87)", // Input text color
-        caretColor: isDarkMode ? "white" : "rgba(0, 0, 0, 0.87)", // Caret (cursor) color
+        color: isDarkMode ? "white" : "rgba(0, 0, 0, 0.87)",
+        caretColor: isDarkMode ? "white" : "rgba(0, 0, 0, 0.87)",
         "&::placeholder": {
           color: isDarkMode
             ? "rgba(255, 255, 255, 0.7)"
-            : "rgba(0, 0, 0, 0.54)", // Placeholder text color
+            : "rgba(0, 0, 0, 0.54)",
         },
       },
       "& .MuiOutlinedInput-root": {
         "& fieldset": {
-          borderColor: isDarkMode ? "white" : "rgba(0, 0, 0, 0.23)", // Border color for the input field
+          borderColor: isDarkMode ? "white" : "rgba(0, 0, 0, 0.23)",
         },
         "&:hover fieldset": {
-          borderColor: isDarkMode ? "white" : "rgba(0, 0, 0, 0.23)", // Border color on hover
+          borderColor: isDarkMode ? "white" : "rgba(0, 0, 0, 0.23)",
         },
         "&.Mui-focused fieldset": {
-          borderColor: isDarkMode ? "white" : "rgba(0, 0, 0, 0.87)", // Border color when focused
+          borderColor: isDarkMode ? "white" : "rgba(0, 0, 0, 0.87)",
         },
       },
       "& .MuiInputLabel-root": {
-        color: isDarkMode ? "white" : "rgba(0, 0, 0, 0.54)", // Label text color
+        color: isDarkMode ? "white" : "rgba(0, 0, 0, 0.54)",
       },
     },
   };
@@ -46,7 +46,16 @@ const TextfieldUI = ({ name, ...otherProps }) => {
     configTextfield.helperText = meta.error;
   }
 
-  return <TextField {...configTextfield} />;
+  return (
+    <TextField
+      {...configTextfield}
+      InputProps={{
+        endAdornment: icon ? (
+          <InputAdornment position="end">{icon}</InputAdornment>
+        ) : null,
+      }}
+    />
+  );
 };
 
 export default TextfieldUI;
