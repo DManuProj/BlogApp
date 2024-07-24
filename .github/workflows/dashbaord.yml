@@ -23,7 +23,7 @@ jobs:
 
       - name: Build Dashboard app
         run: |
-          cd dashbaord
+          cd dashboard
           echo "REACT_APP_FIREBASE_API_KEY=${{ secrets.REACT_APP_FIREBASE_API_KEY }}" >> .env
           npm run build
 
