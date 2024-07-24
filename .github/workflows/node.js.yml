@@ -27,6 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
+    - working-directory: ./backend
     - run: |
         touch .env
          echo "MONGODB_URL=${{ secrets.MONGODB_URL }}" >> .env
