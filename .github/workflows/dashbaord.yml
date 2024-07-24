@@ -25,7 +25,7 @@ jobs:
 
       - name: Build React app
         run: |
-          cd frontend
+          cd dashboard
           echo "REACT_APP_FIREBASE_API_KEY=${{ secrets.REACT_APP_FIREBASE_API_KEY }}" >> .env
           CI=false npm run build  # Ignore ESLint errors during build
 
@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync frontend/build s3://dihive-dashboard --delete
+          aws s3 sync dashboard/build s3://dihive-dashboard --delete
