@@ -26,12 +26,19 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
+
+    - name: Change Directory to Backend
+      run: cd backend
+
     - run: |
+        cd backend
+        npm ci
+
+    - run: |
+        cd backend
         touch .env
          echo "MONGODB_URL=${{ secrets.MONGODB_URL }}" >> .env
          echo "AUTH_EMAIL=${{ secrets.AUTH_EMAIL }}" >> .env
          echo "AUTH_PASSWORD=${{ secrets.AUTH_PASSWORD }}" >> .env
          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
          echo "PORT=${{ secrets.PORT }}" >> .env
-        
