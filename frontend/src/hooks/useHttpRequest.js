@@ -16,7 +16,7 @@ const useHttpRequest = () => {
     ) => {
       console.log("mehtod: " + method, "url", "data:" + data);
       // const API = `http://localhost:5000/${url}`;
-      const API = `http://13.201.137.181:8000/${url}`;
+      const API = `http://13.201.137.181/${url}`;
 
       setIsLoading(true);
       setError(null);
