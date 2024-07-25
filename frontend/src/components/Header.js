@@ -45,7 +45,11 @@ const Header = () => {
   const navItems = [
     { path: "/", link: "Home" },
     { path: "/about", link: "About" },
-    { path: "http://localhost:3001", link: "Write", external: true }, // Add this item for external link
+    {
+      path: "http://dihive-dashboard.s3-website.ap-south-1.amazonaws.com",
+      link: "Write",
+      external: true,
+    }, // Add this item for external link
   ];
 
   const toggleModeHandler = () => {
