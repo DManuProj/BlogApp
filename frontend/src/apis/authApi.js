@@ -1,7 +1,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
-export const API_URL = "http://localhost:5000";
+export const API_URL = "http://13.201.137.181:8000";
 
 export const getGoogleSignUp = async (token) => {
   try {
