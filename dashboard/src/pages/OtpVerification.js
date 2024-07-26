@@ -1,50 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MuiOtpInput } from "mui-one-time-password-input";
-import useHttpRequest from "../hooks/useHttpRequest";
-import toast, { Toaster } from "react-hot-toast";
 import { setUserData } from "../store/userSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { Toaster } from "react-hot-toast";
+import useHttpRequest from "../hooks/useHttpRequest";
 
 const OtpVerification = () => {
   const { isLoading, sendRequest } = useHttpRequest();
-
   const dispatch = useDispatch();
-
   const location = useLocation();
   const navigate = useNavigate();
-  const prevLocation = location.state?.from;
-
   const { user } = useSelector((state) => state.user);
 
   const [seconds, setSeconds] = useState(120);
   const [otp, setOtp] = useState("");
 
-  //check if its from the dashboard/setting page
-  if (!user.isEmailVerified) {
-    var fromSetting = prevLocation.pathname;
-    var fromDashboard = prevLocation.startsWith("/dashboard");
-  }
+  const prev = useRef(location);
+  const prevLocation = prev.current.state.from;
 
   useEffect(() => {
-    console.log("runs on here", prevLocation);
-    if (
-      prevLocation &&
-      (fromSetting || fromDashboard) &&
-      !user.isEmailVerified
-    ) {
+    // Conditionally resend OTP if email is not verified and coming from specific pages
+    if (!user.isEmailVerified && prevLocation.startsWith("/dashboard")) {
       resendOtp();
     }
-  }, [prevLocation]);
-
-  useEffect(() => {
-    if (user) {
-      if (!user.token || user.isEmailVerified) {
-        navigate("/", { replace: true });
-      }
-    }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (seconds > 0) {
@@ -57,19 +38,17 @@ const OtpVerification = () => {
   }, [seconds]);
 
   const resendOtp = async () => {
-    // Logic to resend OTP
     try {
       const data = await sendRequest("POST", `users/resend-link/${user.id}`);
-      console.log("dataOnResend ", data);
-
-      dispatch(setUserData(data.user, data.token));
-    } catch (error) {}
+      // dispatch(setUserData(data.user, data.token));
+    } catch (error) {
+      console.error("Failed to resend OTP", error);
+    }
     setOtp("");
     setSeconds(120);
   };
 
   const handleOnChange = (value) => {
-    console.log(value);
     setOtp(value);
   };
 
@@ -79,27 +58,20 @@ const OtpVerification = () => {
         "POST",
         `users/verify/${user.id}/${value}`
       );
-
       const token = user.token;
 
-      dispatch(setUserData({ user: result.user, token }));
-
       setTimeout(() => {
-        console.log("Navigating to /auth");
-        localStorage.removeItem("otp_data");
-        navigate("/", { replace: true });
-      }, 3000); // Adjust timeout as necessary
+        dispatch(setUserData({ user: result.user, token }));
+        navigate("/dashboard/home", { replace: true });
+      }, 3000);
     } catch (error) {
-      console.log(error);
-      // toast.error(error.message);
+      console.error("OTP verification failed", error);
     }
   };
 
   const validateChar = (value) => {
-    return /^\d+$/.test(value); // Check if value is a number
+    return /^\d+$/.test(value);
   };
-  // if (!otpData.otpLevel) navigate("/auth");
-  // if (user.emailVerified) navigate("/dashboard");
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-600">
@@ -114,7 +86,7 @@ const OtpVerification = () => {
           onChange={handleOnChange}
           onComplete={handleOnComplete}
           validateChar={validateChar}
-          className=" flex justify-center gap-2 mb-4"
+          className="flex justify-center gap-2 mb-4"
         />
         <p className="mb-4">
           OTP expires in: {Math.floor(seconds / 60)}:

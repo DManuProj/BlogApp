@@ -48,8 +48,7 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-
-      element: <Navigate to="/dashboard" />,
+      element: <Navigate to="/auth" />,
       index: true,
     },
     {
@@ -84,10 +83,9 @@ function App() {
       ),
       children: [
         {
-          index: true,
           path: "/dashboard",
-          errorElement: <PageNotFound />,
           element: <Navigate to="home" replace />,
+          errorElement: <PageNotFound />,
         },
 
         {
@@ -157,7 +155,7 @@ function App() {
       // Clear the interval on component unmount
       clearInterval(intervalRef.current);
     };
-  }, [dispatch, user]);
+  }, [user]);
 
   const handleCancel = () => {
     // Handle session expiration confirmation
