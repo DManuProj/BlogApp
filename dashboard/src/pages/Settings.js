@@ -27,6 +27,17 @@ const SettingPage = () => {
   const location = useLocation();
 
   useEffect(() => {
+    if (user?.token && user.isEmailVerified) {
+      navigate("/dashboard/settings");
+    } else if (user?.token && !user.isEmailVerified) {
+      navigate("/otp-verification", {
+        replace: true,
+        state: { from: "/dashboard/setting" },
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (user.id) {
       const fetchUser = async () => {
         try {
@@ -90,13 +101,10 @@ const SettingPage = () => {
       if (data.success) {
         const updatedUser = data.user;
         const token = data.token;
-        dispatch(setUserData({ user: updatedUser, token }));
 
-        if (values.email !== initialValues.email) {
-          setTimeout(() => {
-            navigate("/otp-verification", { state: { from: location } });
-          }, 2000);
-        }
+        setTimeout(() => {
+          dispatch(setUserData({ user: updatedUser, token }));
+        }, 2000);
       }
     } catch (error) {
       console.log(error);

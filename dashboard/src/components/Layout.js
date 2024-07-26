@@ -32,10 +32,8 @@ const UserMenu = ({ user, theme }) => {
   const navigate = useNavigate();
 
   const handleSignOut = () => {
-    setTimeout(() => {
-      dispatch(signOut());
-      window.location.replace("/auth");
-    }, 3000);
+    window.location.replace("/");
+    dispatch(signOut());
   };
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);

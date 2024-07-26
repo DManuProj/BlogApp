@@ -15,6 +15,7 @@ import { setUserData } from "../../store/userSlice";
 import LoadingSpinner from "../LoadingSpinner";
 import { Toaster } from "react-hot-toast";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = ({ setCurrentForm, user }) => {
   const { isLoading, sendRequest } = useHttpRequest();
@@ -22,6 +23,7 @@ const LoginForm = ({ setCurrentForm, user }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const INITIAL_VALUES = {
     email: "",
@@ -35,13 +37,16 @@ const LoginForm = ({ setCurrentForm, user }) => {
 
   const submitHandler = async (values) => {
     try {
-      const data = await sendRequest("POST", "auth/login", values);
-      const user = data.user;
-      const token = data.token;
+      const result = await sendRequest("POST", "auth/login", values);
+      const user = result.user;
+      const token = result.token;
 
-      setTimeout(() => {
-        dispatch(setUserData({ user, token }));
-      }, 3000);
+      if (result.success) {
+        setTimeout(() => {
+          dispatch(setUserData({ user, token }));
+          navigate("/dashboard/home", { replace: true });
+        }, 2000);
+      }
     } catch (error) {
       console.error("Request failed:", error);
     }
