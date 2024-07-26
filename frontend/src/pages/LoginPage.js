@@ -40,20 +40,21 @@ const LoginPage = () => {
     onSuccess: async (tokenResponse) => {
       try {
         dispatch(setIsLoading(true));
-        const user = await googleSignIn(tokenResponse.access_token);
+        const result = await googleSignIn(tokenResponse.access_token);
 
         dispatch(setIsLoading(false));
 
-        if (user.success) {
-          dispatch(setUserData(user));
-          toast.success(user.message);
+        if (result.success) {
+          dispatch(setUserData(result));
+          toast.success(result.message);
           setTimeout(() => {
             navigate("/", { replace: true });
           }, 1500);
+        } else {
+          toast.error(result.message || "Something went wrong");
         }
       } catch (error) {
         console.log(error);
-        toast.error("Something went wrong. ");
       }
     },
   });

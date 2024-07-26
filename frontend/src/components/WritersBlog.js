@@ -15,7 +15,7 @@ export const WritersBlog = ({ post, index }) => {
   return (
     <article className="flex flex-col w-full  justify-between h-full ">
       <div className="w-full    rounded-2xl ">
-        <Link to={`blog/${post.slug}/${post._id}`}>
+        <Link to={`/blog/${post.slug}/${post._id}`}>
           <img
             className="  w-full h-auto md:h-64 md:w-4/5 rounded-2xl  object-cover"
             src={post.img}
@@ -41,7 +41,7 @@ export const WritersBlog = ({ post, index }) => {
           </Markdown>
         </p>
         <Link
-          to={`/${post.slug}/${post._id}`}
+          to={`blog/${post.slug}/${post._id}`}
           className="flex items-center gap-2 text-black dark:text-white"
         >
           <span className="underline">Read More</span> <AiOutlineArrowRight />

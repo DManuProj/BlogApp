@@ -27,7 +27,7 @@ const PopularPosts = ({ posts }) => {
             {post?.category}
           </span>
           <Link
-            to={`/${post?.slug}/${post?._id}`}
+            to={`/blog/${post?.slug}/${post?._id}`}
             className="text-black dark:text-white"
           >
             {post?.title}

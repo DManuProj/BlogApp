@@ -1,7 +1,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
-export const API_URL = "http://localhost:5000";
+export const API_URL = "http://localhost:8000/api";
 
 export const getGoogleSignUp = async (token) => {
   try {
@@ -80,7 +80,6 @@ export const emailLogin = async (data) => {
   } catch (error) {
     const err = error.response?.data || error.message;
     console.log(err);
-    toast.error(err.message || "Something went wrong");
     return { success: false, message: err.message || "Something went wrong" };
   }
 };

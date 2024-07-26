@@ -15,7 +15,7 @@ const useHttpRequest = () => {
       config
     ) => {
       console.log("mehtod: " + method, "url", "data:" + data);
-      const API = `http://localhost:5000/${url}`;
+      const API = `http://localhost:8000/api/${url}`;
 
       setIsLoading(true);
       setError(null);
@@ -32,8 +32,7 @@ const useHttpRequest = () => {
 
         return response.data;
       } catch (error) {
-        const errorMessage =
-          error.response?.data?.message || "Something went wrong!";
+        const errorMessage = error.data?.message || "Something went wrong!";
         setError(errorMessage);
         toast.error(errorMessage);
 
