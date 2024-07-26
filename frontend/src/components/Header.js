@@ -49,11 +49,7 @@ const Header = () => {
       path: "http://dihive-dashboard.s3-website.ap-south-1.amazonaws.com",
       link: "Write",
       external: true,
-<<<<<<< HEAD
     },
-=======
-    }, // Add this item for external link
->>>>>>> 8976cd101ac7be30b46013849e310f6d0035d85d
   ];
 
   const toggleModeHandler = () => {
