@@ -65,7 +65,7 @@ const BlogArea = () => {
           <h2 className=" text-slate-800 dark:text-white  font-bold  container mb-5 px-2 lg:p-0 md:p-0 xl:p0 2xl:p-0  text-4xl md:text-5xl">
             From the Blog
           </h2>
-          <p className="text-xl text">Let's start here..</p>
+          <p className=" text-slate-800 text-xl text">Let's start here..</p>
         </div>
         <div className="w-full lg:w-1/3 mb-4 px-4">
           <SearchFelid
