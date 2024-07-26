@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import useHttpRequest from "./useHttpRequest";
 import { updateURL } from "../util";
