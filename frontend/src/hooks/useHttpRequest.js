@@ -15,7 +15,7 @@ const useHttpRequest = () => {
       config
     ) => {
       console.log("mehtod: " + method, "url", "data:" + data);
-      const API = `http://localhost:8000/api/${url}`;
+      const API = `http://13.201.137.181/api/${url}`;
 
       setIsLoading(true);
       setError(null);
