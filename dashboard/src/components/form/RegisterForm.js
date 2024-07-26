@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Box, Typography, Grid, LinearProgress } from "@mui/material";
+import { Button, Box, Typography, Grid } from "@mui/material";
 import { Formik, Form } from "formik";
 import TextfieldUI from "../TextfieldUI";
 import FileInput from "./FileUpload";
@@ -10,7 +10,7 @@ import { toast } from "react-hot-toast";
 import { uploadFile } from "../../util";
 import { setUserData } from "../../store/userSlice";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const RegisterForm = ({ setCurrentForm }) => {
   const { isLoading, sendRequest } = useHttpRequest();
@@ -76,11 +76,11 @@ const RegisterForm = ({ setCurrentForm }) => {
 
   const getProgressBarColor = (score) => {
     if (score === 0) return "transparent";
-    if (score < 20) return "error";
-    if (score < 40) return "error";
-    if (score < 60) return "warning";
-    if (score < 80) return "warning";
-    return "success";
+    if (score < 20) return "bg-red-500";
+    if (score < 40) return "bg-red-500";
+    if (score < 60) return "bg-red-500";
+    if (score <= 80) return "bg-yellow-500";
+    return "bg-green-500";
   };
 
   const submitHandler = async (values) => {
@@ -91,14 +91,15 @@ const RegisterForm = ({ setCurrentForm }) => {
     };
 
     try {
-      const data = await sendRequest("POST", "auth/register", updatedForm);
-      const user = data.user;
-      const token = data.token;
-      dispatch(setUserData({ user, token }));
+      const result = await sendRequest("POST", "auth/register", updatedForm);
+      const user = result.user;
+      const token = result.token;
 
-      setTimeout(() => {
-        navigate("/otp-verification", { replace: true });
-      }, 3000);
+      if (result.success) {
+        setTimeout(() => {
+          dispatch(setUserData({ user, token }));
+        }, 3000);
+      }
     } catch (error) {
       console.error("Request failed:", error);
       const errorMessage = error.response?.data?.message || error.message;
@@ -119,14 +120,14 @@ const RegisterForm = ({ setCurrentForm }) => {
           const progressBarColor = getProgressBarColor(passwordStrength);
           return (
             <Form className="flex flex-col gap-4 dark:text-white">
-              <Grid container xs={12} columnGap={1}>
-                <Grid item xs={5.8}>
+              <Grid container spacing={1}>
+                <Grid item xs={6}>
                   <div>
                     <p>First Name*</p>
                     <TextfieldUI name="firstName" />
                   </div>
                 </Grid>
-                <Grid item xs={5.8}>
+                <Grid item xs={6}>
                   <div>
                     <p>Last Name*</p>
                     <TextfieldUI name="lastName" />
@@ -144,24 +145,16 @@ const RegisterForm = ({ setCurrentForm }) => {
               <div>
                 <p>Password*</p>
                 <TextfieldUI type="password" name="password" />
-                <LinearProgress
-                  variant="determinate"
-                  value={passwordStrength}
-                  color={
-                    progressBarColor === "transparent"
-                      ? "inherit"
-                      : progressBarColor
-                  }
-                  sx={{
-                    height: 8,
-                    borderRadius: 5,
-                    mt: 1,
-                    bgcolor:
-                      progressBarColor === "transparent"
-                        ? "transparent"
-                        : "inherit",
-                  }}
-                />
+                <div className="w-full h-2 mt-1 rounded-lg overflow-hidden">
+                  <div
+                    className={`h-full ${getProgressBarColor(
+                      getPasswordStrength(values.password)
+                    )}`}
+                    style={{
+                      width: `${getPasswordStrength(values.password)}%`,
+                    }}
+                  ></div>
+                </div>
               </div>
               <div>
                 <p>Profile Image*</p>
