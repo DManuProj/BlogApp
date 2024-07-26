@@ -9,7 +9,7 @@ const TreadingBlogCard = () => {
   return (
     <div className="mt-10  flex flex-col justify-center items-center ">
       <div>
-        <h2 className="font-bold  container text-center mb-20 px-2 lg:p-0 md:p-0 xl:p0 2xl:p-0  text-4xl md:text-5xl  ">
+        <h2 className="font-bold text-slate-800 container text-center mb-20 px-2 lg:p-0 md:p-0 xl:p0 2xl:p-0  text-4xl md:text-5xl  ">
           What is Trending ?
         </h2>
         <article className="flex cursor-pointer  flex-col xl:flex-row p-2 lg:p-0 md:p-0 xl:p-0 2xl:p-0 gap-10">
