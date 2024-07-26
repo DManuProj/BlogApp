@@ -23,6 +23,7 @@ const StarterPage = () => {
   }, [isDarkMode]);
 
   const dispatch = useDispatch();
+
   const [currentForm, setCurrentForm] = useState("login"); // Track the current form to display
 
   const handleOpenForm = () => {
@@ -35,14 +36,17 @@ const StarterPage = () => {
   };
 
   const navigate = useNavigate();
-  const location = useLocation();
-  let from = location?.state?.from?.pathname || "/";
 
   useEffect(() => {
-    if (user?.token) {
-      navigate(from);
+    if (user?.token && user.isEmailVerified) {
+      navigate("/dashboard", { replace: true });
+    } else if (user?.token && !user.isEmailVerified) {
+      navigate("/otp-verification", {
+        replace: true,
+        state: { from: "/auth" },
+      });
     }
-  }, [user, navigate, from]);
+  }, [user]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-800">

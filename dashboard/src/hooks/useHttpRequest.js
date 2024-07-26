@@ -15,7 +15,7 @@ const useHttpRequest = () => {
       config
     ) => {
       console.log("mehtod: " + method, "url", "data:" + data);
-      // const API = `http://localhost:5000/${url}`;
+
       const API = `http://13.201.137.181/api/${url}`;
 
       setIsLoading(true);
@@ -30,8 +30,6 @@ const useHttpRequest = () => {
           ...config,
         });
         response.data.message && toast.success(response.data.message);
-
-        console.log("response data", response.data);
 
         return response.data;
       } catch (error) {
