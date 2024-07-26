@@ -49,7 +49,7 @@ const StarterPage = () => {
   }, [user]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+    <div className="min-h-screen bg-white flex items-center justify-center  dark:bg-slate-800">
       <div className="w-full 2xl:max-w-3xl flex flex-col items-center justify-center gap-y-10">
         <span className="hidden dark:text-white text-slate-700 md:flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base">
           Unleash Your Words, Share Your World{" "}
