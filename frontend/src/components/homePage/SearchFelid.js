@@ -3,9 +3,6 @@ import { useSelector } from "react-redux";
 import { Autocomplete, TextField } from "@mui/material";
 
 const SearchField = ({ search, onSearchChange }) => {
-  const [searchItem, setSearchItem] = useState("");
-  const [value, setValue] = useState("");
-
   const { isDarkMode } = useSelector((state) => state.user);
 
   const searchHandler = (event, newValue) => {
@@ -23,7 +20,7 @@ const SearchField = ({ search, onSearchChange }) => {
       onChange={searchHandler}
       id="free-solo-2-demo"
       disableClearable
-      options={search.map((option) => option.heading)}
+      options={search.map((option) => option.title)} // Use 'title' instead of 'heading'
       renderInput={(params) => (
         <TextField
           {...params}

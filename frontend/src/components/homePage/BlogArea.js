@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
 import { Pagination } from "@mui/material";
 import SearchFelid from "./SearchFelid";
 import BlogCard from "../BlogCard";
@@ -12,43 +13,9 @@ const BlogArea = () => {
   const { posts, numOfPages, setPage, isLoading } = usePost({ writerId: "" });
   const { isDarkMode } = useSelector((state) => state.user);
 
-  const trendingBlogs = [
-    {
-      id: 1,
-      date: "May, 15, 2024",
-      slug: "fullstack-social-media-app-full-code",
-      category: "Marketing",
-      heading: "Boost your conversion rate",
-      body: " Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.",
-      profileImg: images.Reading,
-      name: "Dulana Wanigathunga",
-      role: "Software Engineer",
-    },
-    {
-      id: 2,
-      date: "May, 31, 2024",
-      slug: "fullstack-social-media-app-full-code",
-      category: "Frontend",
-      heading: "How Use Tailwind effectively",
-      body: " Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.",
-      profileImg: images.Reading,
-      name: "Dulana Wanigathunga",
-      role: "Software Engineer",
-    },
-    {
-      id: 3,
-      date: "April, 16, 2024",
-      slug: "fullstack-social-media-app-full-code",
-      category: "Development",
-      heading: "What is Agile",
-      body: " Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo.dsdsdssssssssssssssassssssssssssssssssssss Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.",
-      profileImg: images.Reading,
-      name: "Dulana Wanigathunga",
-      role: "Software Engineer",
-    },
-  ];
-
   const [filterSearch, setFilterSearch] = useState("");
+  const refBlogs = useRef(null);
+  const isInViewBlogs = useInView(refBlogs, { once: false });
 
   const handleSearchChange = (value) => {
     setFilterSearch(value);
@@ -58,66 +25,99 @@ const BlogArea = () => {
     return blog.title.toLowerCase().includes(filterSearch.toLowerCase());
   });
 
+  // Debugging useEffect to see if isInViewBlogs changes correctly
+  useEffect(() => {
+    console.log("isInViewBlogs:", isInViewBlogs);
+  }, [isInViewBlogs]);
+
   return (
-    <div className=" h-4/5 mt-14 flex flex-col justify-center items-center dark:text-white   py-4">
+    <motion.div
+      ref={refBlogs}
+      className="h-4/5 mt-14 flex flex-col justify-center items-center dark:text-white py-4"
+      initial="hidden"
+      animate={isInViewBlogs ? "visible" : "hidden"}
+      transition={{ duration: 1 }}
+    >
       <div>
-        <div className="text-center m-10 ">
-          <h2 className=" text-slate-800 dark:text-white  font-bold  container mb-5 px-2 lg:p-0 md:p-0 xl:p0 2xl:p-0  text-4xl md:text-5xl">
+        <div className="text-center m-10">
+          <motion.h2
+            className="text-slate-800 dark:text-white font-bold container mb-5 px-2 lg:p-0 md:p-0 xl:p0 2xl:p-0 text-4xl md:text-5xl"
+            initial={{ opacity: 0, y: -50 }}
+            animate={
+              isInViewBlogs ? { opacity: 1, y: 0 } : { opacity: 0, y: -50 }
+            }
+            transition={{ duration: 0.5 }}
+          >
             From the Blog
-          </h2>
-          <p className=" text-slate-800 text-xl text">Let's start here..</p>
+          </motion.h2>
+          <motion.p
+            className="text-slate-800 text-xl text"
+            initial={{ opacity: 0, y: -30 }}
+            animate={
+              isInViewBlogs ? { opacity: 1, y: 0 } : { opacity: 0, y: -30 }
+            }
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            Let's start here..
+          </motion.p>
         </div>
         <div className="w-full lg:w-1/3 mb-4 px-4">
           <SearchFelid
-            search={trendingBlogs}
+            search={filteredBlogs}
             onSearchChange={handleSearchChange}
           />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 p-4 ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 p-4">
           {filteredBlogs.map(
             (
               { updatedAt, slug, _id, category, user, title, description, img },
               index
             ) => (
-              <Link to={`blog/${slug}/${_id}`} key={index}>
-                <BlogCard
-                  id={_id}
-                  date={updatedAt}
-                  category={category}
-                  name={user.name}
-                  blogTitle={title}
-                  description={description}
-                  role={user.role}
-                  image={img}
-                  profileImg={user.image}
-                  slug={slug}
-                  user={user}
-                />
-              </Link>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{
+                  opacity: isInViewBlogs ? 1 : 0,
+                  y: isInViewBlogs ? 0 : 50,
+                }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Link to={`blog/${slug}/${_id}`}>
+                  <BlogCard
+                    id={_id}
+                    date={updatedAt}
+                    category={category}
+                    name={user.name}
+                    blogTitle={title}
+                    description={description}
+                    role={user.role}
+                    image={img}
+                    profileImg={user.image}
+                    slug={slug}
+                    user={user}
+                  />
+                </Link>
+              </motion.div>
             )
           )}
         </div>
-        <div className="  mt-10 h-16 flex justify-center items-center">
+        <div className="mt-10 h-16 flex justify-center items-center">
           <Pagination
             count={numOfPages}
             onChange={(event, value) => setPage(value)}
             size="large"
             color="primary"
             sx={{
-              "&   .MuiPaginationItem-root": {
+              "& .MuiPaginationItem-root": {
                 color: `${isDarkMode ? "white" : ""}`,
               },
-              //   "&   .css-bf9wz-MuiButtonBase-root-MuiPaginationItem-root.Mui-selected ":
-              //     {
-              //       backgroundColor: `${isDarkMode ? "white" : ""}`,
-              //     },
             }}
           />
         </div>
       </div>
 
       {isLoading && <LoadingSpinner />}
-    </div>
+    </motion.div>
   );
 };
 
