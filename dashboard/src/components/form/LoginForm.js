@@ -93,7 +93,7 @@ const LoginForm = ({ setCurrentForm, user }) => {
               type="submit"
               size="medium"
               variant="contained"
-              className="bg-sky-600 font-bold text-lg dark:bg-white dark:text-black rounded-xl"
+              className="bg-gray-800 font-bold text-lg dark:bg-white dark:text-black rounded-3xl"
             >
               Sign In
             </Button>

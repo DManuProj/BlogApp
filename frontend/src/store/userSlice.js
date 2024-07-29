@@ -7,7 +7,7 @@ const initialState = {
   isDarkMode:
     localStorage.getItem("isDarkMode") !== undefined
       ? JSON.parse(localStorage.getItem("isDarkMode"))
-      : false, //light mode is the default
+      : false, // light mode is the default
 };
 
 const userSlice = createSlice({

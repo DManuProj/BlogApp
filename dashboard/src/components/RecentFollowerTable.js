@@ -14,8 +14,6 @@ import { formatNumber, getInitials } from "../util/index";
 import moment from "moment";
 
 export const RecentFollowerTable = ({ data, theme }) => {
-  console.log("in the table", data);
-
   return (
     <TableContainer component={Paper} className="mb-20">
       <Table className="h-full " aria-label="simple table">
