@@ -9,6 +9,7 @@ import {
   MenuItem,
   ListItemIcon,
   Button,
+  Badge,
 } from "@mui/material";
 import { MdArrowForward } from "react-icons/md";
 import { CiLogout } from "react-icons/ci";
@@ -200,7 +201,15 @@ const Layout = ({ children }) => {
         )}
 
         <div style={{}} className=" hidden md:flex cursor-pointer w-auto">
-          <img className=" w-32 h-10" src={logo} alt="logo" />
+          <Badge color="primary" badgeContent={"Beta"}>
+            <Link to={"/"}>
+              <img
+                src={logo}
+                className="w-28 h-10 border rounded-2xl border-slate-700"
+                alt="logo"
+              />
+            </Link>
+          </Badge>
         </div>
 
         <div className="flex gap-14 items-center">
