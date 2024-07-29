@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useField } from "formik";
-import { Button, Typography, IconButton } from "@mui/material";
-import { RiCloseCircleLine } from "react-icons/ri";
-import { RiImageAddFill } from "react-icons/ri";
+import { Button, IconButton } from "@mui/material";
+import { RiCloseCircleLine, RiImageAddFill } from "react-icons/ri";
 import Skeleton from "@mui/material/Skeleton";
 import toast, { Toaster } from "react-hot-toast";
 import { deleteFile } from "../../util";
@@ -19,9 +18,14 @@ const FileInput = ({
   const [field, meta] = useField(name);
   const [preview, setPreview] = useState(null);
   const [imageUrl, setImageUrl] = useState(previewURL);
+  const fileInputRef = useRef(null);
 
   const handleChange = (event) => {
     const file = event.currentTarget.files[0];
+    if (!file) {
+      return; // Do nothing if no file is selected
+    }
+
     setFile(file);
     setFieldValue(name, file);
 
@@ -33,28 +37,30 @@ const FileInput = ({
       reader.readAsDataURL(file);
     } else {
       setPreview(null);
-      setImageUrl(imageUrl);
       setIsFileUploaded(0);
     }
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     if (fileURL) {
-      deleteFile(fileURL)
-        .then(() => {
-          if (previewURL) {
-            setFieldValue(name, previewURL);
-          } else {
-            setFieldValue(name, null);
-          }
-
-          setPreview(null);
+      try {
+        await deleteFile(fileURL);
+        if (previewURL) {
+          setFieldValue(name, previewURL);
           setImageUrl(previewURL);
-          setIsFileUploaded(0);
-        })
-        .catch((error) => {
-          console.error("Error removing file:", error);
-        });
+        } else {
+          setFieldValue(name, null);
+          setImageUrl(null);
+        }
+        setPreview(null);
+        setIsFileUploaded(0);
+        setFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""; // Reset the input value
+        }
+      } catch (error) {
+        console.error("Error removing file:", error);
+      }
     }
   };
 
@@ -72,6 +78,7 @@ const FileInput = ({
         onChange={handleChange}
         className="hidden"
         id="file-input"
+        ref={fileInputRef} // Reference to the input field
       />
       <label htmlFor="file-input">
         {!preview && !imageUrl ? (
@@ -88,37 +95,34 @@ const FileInput = ({
         </p>
       ) : null}
       {preview && isFileUploaded === 100 && (
-        <div className=" mt-1 flex items-start justify-center ">
+        <div className="mt-1 flex items-start justify-center">
           <img
             src={preview}
             alt="Preview"
-            className={`rounded-full w-28 h-28 object-cover `}
+            className={`rounded-full w-28 h-28 object-cover`}
           />
-
           <IconButton onClick={handleRemove}>
             <RiCloseCircleLine className="absolute" />
           </IconButton>
         </div>
       )}
       {imageUrl && !preview && (
-        <div className=" mt-1 flex items-start justify-center ">
+        <div className="mt-1 flex items-start justify-center">
           <img
             src={imageUrl}
             alt="Preview"
-            className={`rounded-full w-28 h-28 object-cover `}
+            className={`rounded-full w-28 h-28 object-cover`}
           />
         </div>
       )}
-
       {preview && isFileUploaded < 100 && (
-        <div className=" mt-1 flex items-start justify-center ">
+        <div className="mt-1 flex items-start justify-center">
           <Skeleton
             variant="circular"
-            className="w-28 h-28  mr-7 dark:text-white"
+            className="w-28 h-28 mr-7 dark:text-white"
           />
         </div>
       )}
-
       <Toaster position="bottom-right" reverseOrder={true} />
     </div>
   );

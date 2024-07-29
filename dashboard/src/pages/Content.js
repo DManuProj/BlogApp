@@ -95,7 +95,7 @@ const Content = () => {
         break;
       case "status":
         // Perform status update action
-        sendRequest(
+        await sendRequest(
           "PATCH",
           `posts/update/${selected}`,
           { status: status },
@@ -109,11 +109,12 @@ const Content = () => {
     }
     fetchContent();
     setOpen(false);
+    handleClose();
   };
 
   const openMenu = Boolean(actionMenu);
-  const handleClick = (event) => {
-    setActionMenu(event.currentTarget);
+  const handleClick = (event, id) => {
+    setActionMenu({ anchor: event.currentTarget, id });
   };
 
   const handleClose = () => {
@@ -208,12 +209,12 @@ const Content = () => {
                     </span>
                   </TableCell>
                   <TableCell className="dark:text-white " align="center">
-                    <IconButton onClick={handleClick}>
+                    <IconButton onClick={(event) => handleClick(event, el._id)}>
                       <BiDotsVerticalRounded className="dark:text-white " />
                     </IconButton>
                     <Menu
-                      anchorEl={actionMenu}
-                      open={openMenu}
+                      anchorEl={actionMenu?.anchor}
+                      open={openMenu && actionMenu?.id === el._id}
                       onClose={handleClose}
                     >
                       <MenuItem
@@ -264,9 +265,9 @@ const Content = () => {
               color: `${isDarkMode ? "white" : ""}`,
             },
             "& .MuiPaginationItem-root.Mui-selected": {
-              backgroundColor: `${isDarkMode ? "white" : "#1f2937"}`, // Customize the background color for selected item
-              color: `${isDarkMode ? "black" : "primary"}`, // Ensure text color is readable against the background
-              borderRadius: "50%", // Optional: Make the selected item a circle
+              backgroundColor: `${isDarkMode ? "white" : "#1f2937"}`,
+              color: `${isDarkMode ? "black" : "primary"}`,
+              borderRadius: "50%",
             },
           }}
         />

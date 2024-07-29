@@ -52,7 +52,6 @@ const ForgetPasswordPage = () => {
 
     try {
       const result = await resetPassword(data);
-      console.log("result", result);
 
       const user = result.user;
       const token = result.token;

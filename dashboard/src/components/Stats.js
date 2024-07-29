@@ -64,7 +64,7 @@ const Stats = ({ data }) => {
       <Grid item xs={12} sm={6} md={3} key={stat.title}>
         <Paper
           elevation={3}
-          className="p-2 h-full flex border border-white flex-col justify-between dark:bg-gray-900 dark:text-white"
+          className="p-2 h-full flex border border-white flex-col justify-between bg-slate-800 text-white"
         >
           <Stack
             direction="row"
@@ -97,7 +97,7 @@ const Stats = ({ data }) => {
           <Typography
             variant="caption"
             color="textSecondary"
-            className=" dark:text-white mt-2"
+            className=" text-white mt-2"
           >
             Compare to previous month
           </Typography>
