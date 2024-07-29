@@ -192,7 +192,9 @@ const Header = () => {
   return (
     <header className="h-20  w-full flex justify-between items-center relative">
       <div>
-        <img src={images.Logo} className="w-28 h-10" alt="logo" />
+        <Link to={"/"}>
+          <img src={images.Logo} className="w-28 h-10" alt="logo" />
+        </Link>
       </div>
       <div>
         <ul className="w-full sm:flex gap-8 justify-center hidden items-center">
@@ -233,7 +235,7 @@ const Header = () => {
               <Button
                 type="button"
                 label="Sign in"
-                styles="dark:bg-sky-700 bg-slate-950 text-white px-8 py-1.5 rounded-full text-center outline-none"
+                styles="dark:bg-sky-500 hover:bg-sky-700 bg-slate-950 text-white px-8 py-1.5 rounded-full text-center outline-none"
               />
             </Link>
           )}
