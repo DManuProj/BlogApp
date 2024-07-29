@@ -10,6 +10,7 @@ import {
 import LoadingSpinner from "../components/LoadingSpinner";
 import { Toaster } from "react-hot-toast";
 import { setStatsData } from "../store/statsSlice";
+import { Typography } from "@mui/material";
 
 const DashboardHome = () => {
   const { isLoading, sendRequest } = useHttpRequest();
@@ -45,6 +46,13 @@ const DashboardHome = () => {
   return (
     <div className="w-full   ">
       {/* should pass the data = data */}
+      <Typography
+        variant="h6"
+        className="text-slate-700 dark:text-white font-semibold"
+        gutterBottom
+      >
+        Dashboard Home
+      </Typography>
       <Stats data={statData} />
       <div className="w-full py-8 dark:text-white ">
         <p className="mb-3">View Stats for last 28 days</p>
