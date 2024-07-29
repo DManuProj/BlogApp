@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { Pagination } from "@mui/material";
-import SearchFelid from "./SearchFelid";
+import SearchField from "./SearchFelid";
 import BlogCard from "../BlogCard";
 import images from "../../assets";
 import { usePost } from "../../hooks/postHook";
@@ -14,8 +14,10 @@ const BlogArea = () => {
   const { isDarkMode } = useSelector((state) => state.user);
 
   const [filterSearch, setFilterSearch] = useState("");
-  const refBlogs = useRef(null);
-  const isInViewBlogs = useInView(refBlogs, { once: false });
+  const refHeading = useRef(null);
+  const refContent = useRef(null);
+  const isInViewHeading = useInView(refHeading, { once: false });
+  const isInViewContent = useInView(refContent, { once: false });
 
   const handleSearchChange = (value) => {
     setFilterSearch(value);
@@ -25,26 +27,15 @@ const BlogArea = () => {
     return blog.title.toLowerCase().includes(filterSearch.toLowerCase());
   });
 
-  // Debugging useEffect to see if isInViewBlogs changes correctly
-  useEffect(() => {
-    console.log("isInViewBlogs:", isInViewBlogs);
-  }, [isInViewBlogs]);
-
   return (
-    <motion.div
-      ref={refBlogs}
-      className="h-4/5 mt-14 flex flex-col justify-center items-center dark:text-white py-4"
-      initial="hidden"
-      animate={isInViewBlogs ? "visible" : "hidden"}
-      transition={{ duration: 1 }}
-    >
-      <div>
+    <motion.div className="h-4/5 mt-14 flex flex-col justify-center items-center dark:text-white py-4">
+      <div ref={refHeading}>
         <div className="text-center m-10">
           <motion.h2
             className="text-slate-800 dark:text-white font-bold container mb-5 px-2 lg:p-0 md:p-0 xl:p0 2xl:p-0 text-4xl md:text-5xl"
             initial={{ opacity: 0, y: -50 }}
             animate={
-              isInViewBlogs ? { opacity: 1, y: 0 } : { opacity: 0, y: -50 }
+              isInViewHeading ? { opacity: 1, y: 0 } : { opacity: 0, y: -50 }
             }
             transition={{ duration: 0.5 }}
           >
@@ -54,15 +45,17 @@ const BlogArea = () => {
             className="text-slate-800 text-xl text"
             initial={{ opacity: 0, y: -30 }}
             animate={
-              isInViewBlogs ? { opacity: 1, y: 0 } : { opacity: 0, y: -30 }
+              isInViewHeading ? { opacity: 1, y: 0 } : { opacity: 0, y: -30 }
             }
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             Let's start here..
           </motion.p>
         </div>
+      </div>
+      <div ref={refContent}>
         <div className="w-full lg:w-1/3 mb-4 px-4">
-          <SearchFelid
+          <SearchField
             search={filteredBlogs}
             onSearchChange={handleSearchChange}
           />
@@ -77,8 +70,8 @@ const BlogArea = () => {
                 key={index}
                 initial={{ opacity: 0, y: 50 }}
                 animate={{
-                  opacity: isInViewBlogs ? 1 : 0,
-                  y: isInViewBlogs ? 0 : 50,
+                  opacity: isInViewContent ? 1 : 0,
+                  y: isInViewContent ? 0 : 50,
                 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
