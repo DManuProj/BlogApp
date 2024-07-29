@@ -192,9 +192,15 @@ const Header = () => {
   return (
     <header className="h-20  w-full flex justify-between items-center relative">
       <div>
-        <Link to={"/"}>
-          <img src={images.Logo} className="w-28 h-10" alt="logo" />
-        </Link>
+        <Badge color="primary" badgeContent={"Beta"}>
+          <Link to={"/"}>
+            <img
+              src={images.Logo}
+              className="w-28 h-10  dark:bottom-0 border rounded-2xl border-slate-700"
+              alt="logo"
+            />
+          </Link>
+        </Badge>
       </div>
       <div>
         <ul className="w-full sm:flex gap-8 justify-center hidden items-center">
