@@ -150,7 +150,7 @@ const LoginPage = () => {
               <Button
                 label="Sign In"
                 type="submit"
-                styles="w-full sm:text-lg py-2.5 2xl:py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-black dark:bg-sky-600 hover:bg-sky-900 focus:outline-none  mt-8"
+                styles="w-full sm:text-lg py-2.5 2xl:py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-slate-950 dark:bg-sky-500 hover:bg-sky-700 focus:outline-none  mt-8"
               />
             </Form>
           </Formik>

@@ -22,6 +22,7 @@ const ProfilePage = () => {
   const [file, setFile] = useState(null);
   const [fileURL, setFileURL] = useState("");
   const [usersData, setUsersData] = useState(null);
+  const [initialValues, setInitialValues] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -30,12 +31,21 @@ const ProfilePage = () => {
       }
     }
   }, []);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const data = await sendRequest("GET", `users/get-user/${user.id}`);
-
         setUsersData(data.data);
+        const [firstName, lastName] = data.data.name
+          ? data.data.name.split(" ")
+          : ["", ""];
+        setInitialValues({
+          firstName: firstName || "",
+          lastName: lastName || "",
+          email: data.data.email || "",
+          image: data.data.image || "",
+        });
       } catch (error) {
         console.log(error);
       }
@@ -56,20 +66,9 @@ const ProfilePage = () => {
     }
   }, [file]);
 
-  if (!usersData) {
+  if (!usersData || !initialValues) {
     return <LoadingSpinner />;
   }
-
-  const [firstName, lastName] = usersData.name
-    ? usersData.name.split(" ")
-    : ["", ""];
-
-  const INITIAL_VALUES = {
-    firstName: firstName || "",
-    lastName: lastName || "",
-    email: usersData.email || "",
-    image: usersData.image || "",
-  };
 
   const FORM_VALIDATION = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
@@ -100,9 +99,6 @@ const ProfilePage = () => {
         }
       );
 
-      const updatedUser = result.user;
-      const token = result.token;
-
       if (result.success) {
         dispatch(setUserData(result));
         setTimeout(() => {
@@ -118,8 +114,6 @@ const ProfilePage = () => {
 
   return (
     <AuthLayout>
-      {/* Left Column (Sidebar for larger screens) */}
-
       <div className="h-full flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-md w-full space-y-6">
           <div className="flex justify-center items-center  w-full py-6">
@@ -129,12 +123,15 @@ const ProfilePage = () => {
           </div>
 
           <Formik
-            initialValues={INITIAL_VALUES}
+            initialValues={initialValues}
             validationSchema={FORM_VALIDATION}
             onSubmit={(values) => handleSubmit(values)}
             enableReinitialize
           >
             {({ setFieldValue, values }) => {
+              const isFormDirty =
+                JSON.stringify(values) !== JSON.stringify(initialValues);
+
               return (
                 <Form className="max-w-md dark:text-white w-full mt-8 space-y-6">
                   <div className="flex flex-col rounded-md shadow-sm -space-y-px gap-6 mb-8">
@@ -166,14 +163,13 @@ const ProfilePage = () => {
                         previewURL={usersData.image}
                       />
                     </div>
-                    {/* <BiImages />
-                            <span>Picture</span> */}
                   </div>
 
                   <Button
                     label="Update Profile"
                     type="submit"
-                    styles="w-full py-2.5 2xl:py-3 px-4 border border-transparent text-xl font-medium rounded-full text-white bg-black dark:bg-rose-800 hover:bg-rose-700 focus:outline-none  mt-8"
+                    styles="w-full sm:text-lg py-2.5 2xl:py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-slate-950 dark:bg-sky-500 hover:bg-sky-700 focus:outline-none  mt-8"
+                    disabled={!isFormDirty}
                   />
                 </Form>
               );
