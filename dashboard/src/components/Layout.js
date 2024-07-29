@@ -162,7 +162,6 @@ const Layout = ({ children }) => {
   };
   const handleOpenDrawer = () => {
     dispatch(setDrawerOpen(true));
-    console.log("click menu icon");
   };
 
   return (

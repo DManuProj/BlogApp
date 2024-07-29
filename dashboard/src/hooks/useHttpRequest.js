@@ -14,8 +14,6 @@ const useHttpRequest = () => {
       headers = { "Content-Type": "application/json" },
       config
     ) => {
-      console.log("mehtod: " + method, "url", "data:" + data);
-
       const API = `http://13.201.137.181/api/${url}`;
 
       setIsLoading(true);

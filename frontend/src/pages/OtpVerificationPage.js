@@ -84,16 +84,15 @@ const OtpVerificationPage = () => {
         "POST",
         `users/verify/${user.id}/${value}`
       );
-
+      const token = user.token;
       if (result.success) {
         const user = result.user;
-        const token = result.token;
 
         dispatch(setUserData({ user, token }));
 
         setTimeout(() => {
           window.location.replace("/");
-        }, 3000); // Adjust timeout as necessary
+        }, 3000);
       }
     } catch (error) {
       console.log(error);

@@ -16,8 +16,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 const SettingPage = () => {
   const { isLoading, sendRequest } = useHttpRequest();
   const [error, setError] = useState(null);
-  const [file, setFile] = useState("");
-  const [fileURL, setFileURL] = useState("");
+  const [file, setFile] = useState(null);
+  const [fileURL, setFileURL] = useState(null);
   const [isFileUploaded, setIsFileUploaded] = useState(0);
   const [profileData, setProfileData] = useState(null);
   const { user } = useSelector((state) => state.user);
@@ -94,13 +94,18 @@ const SettingPage = () => {
 
   const submitHandler = async (values) => {
     try {
-      const data = await sendRequest("PUT", `users/update-user`, values, {
-        Authorization: `Bearer ${user.token}`,
-      });
+      const result = await sendRequest(
+        "PUT",
+        `users/update-user`,
+        { ...values, image: fileURL || user.image },
+        {
+          Authorization: `Bearer ${user.token}`,
+        }
+      );
 
-      if (data.success) {
-        const updatedUser = data.user;
-        const token = data.token;
+      if (result.success) {
+        const updatedUser = result.user;
+        const token = result.token;
 
         setTimeout(() => {
           dispatch(setUserData({ user: updatedUser, token }));

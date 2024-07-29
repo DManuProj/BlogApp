@@ -85,11 +85,9 @@ const SignUpPage = () => {
 
     try {
       const result = await emailSignUp({ ...values, image: fileURL });
-      const user = result.user;
-      const token = result.token;
       if (result.success) {
         dispatch(setIsLoading(false));
-        dispatch(setUserData({ user, token }));
+        dispatch(setUserData(result));
         setTimeout(() => {
           navigate("/otp-verification", { state: { from: location } });
         }, 3000);
