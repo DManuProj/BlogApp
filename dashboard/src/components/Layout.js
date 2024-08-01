@@ -85,7 +85,7 @@ const UserMenu = ({ user, theme }) => {
         </IconButton>
         <div className="mx-2 text-sm dark:text-white">
           <p className="font-semibold">{firstName}</p>
-          <p className="text-xs">{user.account}</p>
+          <p className="text-xs">{"Writer"}</p>
         </div>
       </Box>
       <Menu
@@ -200,7 +200,7 @@ const Layout = ({ children }) => {
           />
         )}
 
-        <div style={{}} className=" hidden md:flex cursor-pointer w-auto">
+        <div className=" hidden md:flex cursor-pointer w-auto">
           <Badge color="primary" badgeContent={"Beta"}>
             <Link to={"/"}>
               <img
