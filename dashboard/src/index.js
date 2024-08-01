@@ -8,6 +8,7 @@ import { StyledEngineProvider, ThemeProvider } from "@mui/material";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+console.log("clientId", clientId);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
