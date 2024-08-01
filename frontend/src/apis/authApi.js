@@ -79,6 +79,7 @@ export const emailLogin = async (data) => {
     }
   } catch (error) {
     const err = error.response?.data || error.message;
+    toast.error(err.message);
     console.log(err);
     return { success: false, message: err.message || "Something went wrong" };
   }

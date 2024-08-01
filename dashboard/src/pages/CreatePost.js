@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Button, Typography } from "@mui/material";
+import React, { useEffect, useState, useRef } from "react";
+import { Button, Typography, IconButton } from "@mui/material";
 import Select from "../components/form/SelectUI";
 import ReactQuill from "react-quill";
-import { createSlug, uploadFile } from "../util/index";
+import { createSlug, uploadFile, deleteFile } from "../util/index";
 import { BiImages } from "react-icons/bi";
+import { RiCloseCircleLine } from "react-icons/ri";
 import "react-quill/dist/quill.snow.css";
 import * as Yup from "yup";
 import { Form, Formik } from "formik";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import TextfieldUI from "../components/TextfieldUI";
 import LoadingSpinner from "../components/LoadingSpinner";
 import toast, { Toaster } from "react-hot-toast";
@@ -16,19 +17,21 @@ import { useSelector } from "react-redux";
 
 const CreatePost = () => {
   const { user, isDarkMode } = useSelector((state) => state.user);
-  const [file, setFile] = useState("");
+  const { postId } = useParams();
+  const [file, setFile] = useState(null);
   const [fileURL, setFileURL] = useState(null);
   const [isFileUploaded, setIsFileUploaded] = useState(0);
-  const { isLoading, sendRequest } = useHttpRequest();
-
-  const navigate = useNavigate();
-
-  const INITIAL_VALUES = {
+  const [preview, setPreview] = useState(null);
+  const [initialImage, setInitialImage] = useState(null);
+  const [initialValues, setInitialValues] = useState({
     title: "",
     category: "",
     description: "",
     img: null,
-  };
+  });
+  const { isLoading, sendRequest } = useHttpRequest();
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const FORM_VALIDATION = Yup.object().shape({
     title: Yup.string().required("Title is required"),
@@ -58,22 +61,87 @@ const CreatePost = () => {
     }
   }, [file]);
 
-  const submitHandler = async (values) => {
+  // Fetch post data if postId is present
+  useEffect(() => {
+    if (postId) {
+      const fetchPostData = async () => {
+        try {
+          const response = await sendRequest("GET", `posts/${postId}`, null, {
+            Authorization: `Bearer ${user.token}`,
+          });
+          if (response.success) {
+            const { title, category, description, img } = response.data;
+            setInitialValues({
+              title,
+              category,
+              description,
+              img,
+            });
+            setInitialImage(img);
+            setPreview(img);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      fetchPostData();
+    }
+  }, [postId, sendRequest, user.token]);
+
+  const handleChange = (event, setFieldValue) => {
+    const file = event.currentTarget.files[0];
+    if (!file) {
+      return; // Do nothing if no file is selected
+    }
+
+    setFile(file);
+    setFieldValue("img", file);
+
+    if (file && ["image/jpg", "image/jpeg", "image/png"].includes(file.type)) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreview(null);
+      setIsFileUploaded(0);
+    }
+  };
+
+  const handleRemove = async (setFieldValue) => {
+    if (fileURL) {
+      try {
+        await deleteFile(fileURL);
+        setFieldValue("img", null);
+        setPreview(initialImage);
+        setIsFileUploaded(0);
+        setFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""; // Reset the input value
+        }
+      } catch (error) {
+        console.error("Error removing file:", error);
+      }
+    }
+  };
+
+  const handleFormSubmit = async (values) => {
     const slug = createSlug(values.title);
     const updatedForm = {
       ...values,
-      img: fileURL,
+      img: fileURL || initialImage,
       slug,
     };
     try {
-      const result = await sendRequest(
-        "POST",
-        "posts/create-post",
-        updatedForm,
-        {
-          Authorization: `Bearer ${user.token}`,
-        }
-      );
+      const endpoint = postId
+        ? `posts/update-post/${postId}`
+        : "posts/create-post";
+      const method = postId ? "PATCH" : "POST";
+      const result = await sendRequest(method, endpoint, updatedForm, {
+        Authorization: `Bearer ${user.token}`,
+      });
+
       if (result.success) {
         setTimeout(() => {
           navigate("/dashboard", { replace: true });
@@ -121,13 +189,14 @@ const CreatePost = () => {
         className="text-slate-700 dark:text-white font-semibold"
         gutterBottom
       >
-        Create a Post
+        {postId ? "Update Post" : "Create a Post"}
       </Typography>
       {user.isEmailVerified ? (
         <Formik
-          initialValues={INITIAL_VALUES}
+          initialValues={initialValues}
           validationSchema={FORM_VALIDATION}
-          onSubmit={submitHandler}
+          onSubmit={handleFormSubmit}
+          enableReinitialize
         >
           {({ setFieldValue, values }) => (
             <Form>
@@ -167,21 +236,34 @@ const CreatePost = () => {
                   <input
                     type="file"
                     name="img"
-                    onChange={(e) => {
-                      setFile(e.target.files[0]);
-                      setFieldValue("img", e.target.files[0]);
-                    }}
+                    onChange={(e) => handleChange(e, setFieldValue)}
                     className="hidden"
                     id="imgUpload"
                     data-max-size="5120"
                     accept=".jpg, .png, .jpeg"
+                    ref={fileInputRef}
                   />
                   <BiImages />
                   <span>Post Image</span>
                 </label>
               </div>
-
-              <div className="flex flex-col h-2/4 ">
+              <div className="mb-5">
+                {preview && (
+                  <div className="mt-1 flex items-start justify-center ">
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="w-auto h-28 object-cover flex border-white border mr-3"
+                    />
+                    {preview !== initialImage && (
+                      <IconButton onClick={() => handleRemove(setFieldValue)}>
+                        <RiCloseCircleLine className="absolute dark:text-white" />
+                      </IconButton>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col h-2/4  ">
                 <ReactQuill
                   name="description"
                   value={values.description}
@@ -191,28 +273,31 @@ const CreatePost = () => {
                   theme="snow"
                   modules={{ toolbar }}
                 />
-
-                <div className="w-full flex items-end justify-end mt-8">
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    className="bg-gray-800 font-bold text-lg dark:bg-white  dark:text-black rounded-3xl"
-                  >
-                    Create Post
-                  </Button>
-                </div>
+              </div>
+              <div className="w-full flex items-end justify-end mt-8">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="medium"
+                  className="bg-gray-800 font-bold text-lg dark:bg-white  dark:text-black rounded-3xl"
+                >
+                  {isLoading ? (
+                    <LoadingSpinner />
+                  ) : postId ? (
+                    "Update Post"
+                  ) : (
+                    "Create Post"
+                  )}
+                </Button>
               </div>
             </Form>
           )}
         </Formik>
       ) : (
-        <h2 className="dark:text-white text-center text-2xl font-semibold flex flex-col h-full justify-start mt-10">
-          Please Verify the email
-        </h2>
+        <Typography className="text-red-500">
+          Please verify your email to create a post.
+        </Typography>
       )}
-
-      {isLoading && <LoadingSpinner />}
-
       <Toaster position="bottom-right" />
     </>
   );

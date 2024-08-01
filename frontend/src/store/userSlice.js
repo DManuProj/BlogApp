@@ -17,25 +17,21 @@ const userSlice = createSlice({
     setUserData: (state, action) => {
       const tokenExpirationTime = new Date(
         new Date().getTime() + 2 * 60 * 60 * 1000
-      );
+      ).toISOString(); // Store as ISO string
+
       const userData = {
         id: action.payload.user._id,
         name: action.payload.user.name,
         token: action.payload.token,
         isEmailVerified: action.payload.user.emailVerified,
         image: action.payload.user.image,
+        accountType: action.payload.user.accountType,
         expiresIn: tokenExpirationTime,
       };
 
       state.user = userData;
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          ...userData,
-          expiresIn: tokenExpirationTime.toISOString(),
-        })
-      );
+      localStorage.setItem("user", JSON.stringify(userData));
     },
 
     setIsLoading: (state, action) => {
@@ -48,11 +44,11 @@ const userSlice = createSlice({
     },
     toggleMode: (state) => {
       state.isDarkMode = !state.isDarkMode;
-      localStorage.setItem("isDarkMode", state.isDarkMode);
+      localStorage.setItem("isDarkMode", JSON.stringify(state.isDarkMode));
     },
   },
 });
 
-export const { signOut, signInModal, toggleMode, setIsLoading, setUserData } =
+export const { signOut, toggleMode, setIsLoading, setUserData } =
   userSlice.actions;
 export default userSlice.reducer;
