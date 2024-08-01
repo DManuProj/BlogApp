@@ -32,10 +32,12 @@ import { setOpenComments, setCommentId } from "../store/commentsSlice";
 import { Toaster } from "react-hot-toast";
 import Comments from "../components/Comments";
 import { setContentData } from "../store/contentSlices";
+import { FiEdit3 } from "react-icons/fi";
 
 const Content = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, isDarkMode } = useSelector((state) => state.user);
   const { openComment } = useSelector((state) => state.comments);
@@ -47,7 +49,6 @@ const Content = () => {
   const [actionMenu, setActionMenu] = useState(null);
   const { isLoading, sendRequest } = useHttpRequest();
 
-  const dispatch = useDispatch();
   const { contentData, numOfPages, totalPosts } = useSelector(
     (state) => state.contents
   );
@@ -88,21 +89,31 @@ const Content = () => {
   const handleActions = async () => {
     switch (type) {
       case "delete":
-        // Perform delete action
-        await sendRequest("DELETE", `posts/${selected}`, {
-          Authorization: `Bearer ${user.token}`,
-        });
+        try {
+          // Perform delete action
+          await sendRequest("DELETE", `posts/${selected}`, null, {
+            Authorization: `Bearer ${user.token}`,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+
         break;
       case "status":
-        // Perform status update action
-        await sendRequest(
-          "PATCH",
-          `posts/update/${selected}`,
-          { status: status },
-          {
-            Authorization: `Bearer ${user.token}`,
-          }
-        );
+        try {
+          // Perform delete action
+          await sendRequest(
+            "PATCH",
+            `posts/update/${selected}`,
+            { status: status },
+            {
+              Authorization: `Bearer ${user.token}`,
+            }
+          );
+        } catch (error) {
+          console.log(error);
+        }
+
         break;
       default:
         return;
@@ -126,6 +137,11 @@ const Content = () => {
       fetchContent();
     }
   }, [page]);
+
+  const handleEditPost = (postId) => {
+    //navigate to create post page /dashboard/create-post
+    navigate(`/dashboard/update-post/${postId}`);
+  };
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -228,6 +244,12 @@ const Content = () => {
 
                         {el.status ? "Disable" : "Enable"}
                       </MenuItem>
+                      <MenuItem onClick={() => handleEditPost(el._id)}>
+                        <ListItemIcon className="dark:text-white ">
+                          <FiEdit3 size={21} />
+                        </ListItemIcon>
+                        Edit
+                      </MenuItem>
                       <MenuItem
                         sx={{
                           color: "#C80036",
@@ -301,7 +323,7 @@ const Content = () => {
           </Button>
           <Button
             sx={{
-              backgroundColor: "#1F2937",
+              backgroundColor: "#EF4444",
               borderRadius: "2rem",
               color: "white",
 

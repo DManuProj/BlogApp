@@ -8,6 +8,7 @@ import LoginForm from "../components/form/LoginForm";
 import RegisterForm from "../components/form/RegisterForm";
 import { signInModal } from "../store/userSlice";
 import ForgetPasswordPage from "../components/form/ForgotPassword";
+import { Toaster } from "react-hot-toast";
 
 const StarterPage = () => {
   const { user, signInModalOpen, isDarkMode } = useSelector(
@@ -106,6 +107,7 @@ const StarterPage = () => {
           />
         )}
       </FormModal>
+      <Toaster position="bottom-right" />
     </div>
   );
 };
