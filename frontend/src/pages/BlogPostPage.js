@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Markdown from "markdown-to-jsx";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import PostComments from "../components/PostComments";
 import PostRequests from "../apis/postApi";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { useSelector } from "react-redux";
 
 const BlogPostPage = () => {
   const { getPost, isLoading, getComments } = PostRequests();
