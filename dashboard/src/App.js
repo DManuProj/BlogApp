@@ -118,6 +118,14 @@ function App() {
           ),
         },
         {
+          path: "update-post/:postId",
+          element: (
+            <MantineProvider>
+              <CreatePost />
+            </MantineProvider>
+          ),
+        },
+        {
           path: "settings",
           element: <Settings />,
         },

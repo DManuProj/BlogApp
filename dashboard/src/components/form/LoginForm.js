@@ -11,11 +11,15 @@ import TextField from "../TextfieldUI";
 import useHttpRequest from "../../hooks/useHttpRequest";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
-import { setUserData } from "../../store/userSlice";
+import { setIsLoading, setUserData } from "../../store/userSlice";
 import LoadingSpinner from "../LoadingSpinner";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import Divider from "../Divider";
+import { useGoogleLogin } from "@react-oauth/google";
+import { googleSignIn } from "../../api/authApi";
 
 const LoginForm = ({ setCurrentForm, user }) => {
   const { isLoading, sendRequest } = useHttpRequest();
@@ -35,7 +39,7 @@ const LoginForm = ({ setCurrentForm, user }) => {
     password: Yup.string().required("Password is required"),
   });
 
-  const submitHandler = async (values) => {
+  const handleFormSubmit = async (values) => {
     try {
       const result = await sendRequest("POST", "auth/login", values);
       const user = result.user;
@@ -52,6 +56,29 @@ const LoginForm = ({ setCurrentForm, user }) => {
     }
   };
 
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        dispatch(setIsLoading(true));
+        const result = await googleSignIn(tokenResponse.access_token);
+
+        dispatch(setIsLoading(false));
+
+        if (result.success) {
+          dispatch(setUserData(result));
+          toast.success(result.message);
+          setTimeout(() => {
+            navigate("/", { replace: true });
+          }, 1500);
+        } else {
+          toast.error(result.message || "Something went wrong");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  });
+
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   return (
@@ -59,7 +86,7 @@ const LoginForm = ({ setCurrentForm, user }) => {
       <Formik
         initialValues={INITIAL_VALUES}
         validationSchema={FORM_VALIDATION}
-        onSubmit={submitHandler}
+        onSubmit={handleFormSubmit}
       >
         {({ values }) => (
           <Form className="flex flex-col gap-5 dark:text-fuchsia-50">
@@ -93,24 +120,23 @@ const LoginForm = ({ setCurrentForm, user }) => {
               type="submit"
               size="medium"
               variant="contained"
-              className="bg-gray-800 font-bold text-lg dark:bg-white dark:text-black rounded-3xl"
+              className="bg-gray-800 font-bold -mb-5 text-lg dark:bg-white dark:text-black rounded-3xl"
             >
               Sign In
+            </Button>
+            <Divider label="OR" />
+            <Button
+              onClick={() => handleGoogleLogin()}
+              startIcon={<FcGoogle className="text-2xl" />}
+              className="w-full flex justify-center text-lg font-bold bg-gray-800 text-white  items-center gap-4 dark:bg-white dark:text-black  rounded-full "
+            >
+              Sign In with Google
             </Button>
           </Form>
         )}
       </Formik>
-      <p className="p-2 dark:text-fuchsia-50">
-        Don't have an account?{" "}
-        <span
-          onClick={() => setCurrentForm("register")}
-          className="text-blue-700 cursor-pointer"
-        >
-          Sign Up
-        </span>
-      </p>
-      <p className="p-2 dark:text-fuchsia-50">
-        Forgot Password?{" "}
+      <p className="p-2 -mb-2 dark:text-fuchsia-50">
+        Forgot Password ?{" "}
         <span
           onClick={() => setCurrentForm("forgetPassword")}
           className="text-blue-700 cursor-pointer"
@@ -118,6 +144,16 @@ const LoginForm = ({ setCurrentForm, user }) => {
           Reset Here
         </span>
       </p>
+      <p className="p-2 -mb-3 dark:text-fuchsia-50">
+        Don't have an account ?{" "}
+        <span
+          onClick={() => setCurrentForm("register")}
+          className="text-blue-700 cursor-pointer"
+        >
+          Sign Up
+        </span>
+      </p>
+
       <Toaster position="bottom-right" reverseOrder={false} />
       {isLoading && <LoadingSpinner />}
       {error && <Typography color="error">{error}</Typography>}

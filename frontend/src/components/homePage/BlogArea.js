@@ -75,21 +75,19 @@ const BlogArea = () => {
                 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link to={`blog/${slug}/${_id}`}>
-                  <BlogCard
-                    id={_id}
-                    date={updatedAt}
-                    category={category}
-                    name={user.name}
-                    blogTitle={title}
-                    description={description}
-                    role={user.role}
-                    image={img}
-                    profileImg={user.image}
-                    slug={slug}
-                    user={user}
-                  />
-                </Link>
+                <BlogCard
+                  id={_id}
+                  date={updatedAt}
+                  category={category}
+                  name={user.name}
+                  blogTitle={title}
+                  description={description}
+                  role={user.role}
+                  image={img}
+                  profileImg={user.image}
+                  slug={slug}
+                  user={user}
+                />
               </motion.div>
             )
           )}

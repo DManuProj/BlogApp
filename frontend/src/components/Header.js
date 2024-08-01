@@ -47,7 +47,9 @@ const Header = () => {
     { path: "/about", link: "About" },
     {
       path: "http://dihive-dashboard.s3-website.ap-south-1.amazonaws.com",
-      link: "Write",
+      link: `${
+        user && user.accountType === "Writer" ? "Dashboard " : "Write article ?"
+      }`,
       external: true,
     },
   ];
@@ -269,39 +271,43 @@ const Header = () => {
               />
             </div>
             <ul className="flex flex-col gap-7 w-full items-center text-white">
-              {user && !user.isEmailVerified ? (
-                <Link to="/otp-verification" state={{ from: "/" }}>
-                  <Button className="dark:bg-sky-700 bg-slate-950 text-white px-8 py-1.5 rounded-full text-center outline-none">
-                    Verify Email
-                  </Button>
-                </Link>
-              ) : (
-                <>
-                  {user?.image ? (
-                    <StyledBadge
-                      overlap="circular"
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "right",
-                      }}
-                      variant="dot"
-                    >
-                      <Avatar
-                        alt="User Avatar"
-                        className="size-14"
-                        src={user.image}
-                      />
-                    </StyledBadge>
-                  ) : (
-                    <Avatar className="size-9 xs:size-11">
-                      {getInitials(user.name)}
-                    </Avatar>
-                  )}
-                  <div className="mx-2 text-balance dark:text-white">
-                    <p className="font-medium">{user?.name}</p>
-                  </div>
-                </>
-              )}
+              {user ? (
+                !user.isEmailVerified ? (
+                  <Link to="/otp-verification" state={{ from: "/" }}>
+                    <Button className="dark:bg-sky-700 bg-slate-950 text-white px-8 py-1.5 rounded-full text-center outline-none">
+                      Verify Email
+                    </Button>
+                  </Link>
+                ) : (
+                  <>
+                    <li>
+                      {user.image ? (
+                        <StyledBadge
+                          overlap="circular"
+                          anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "right",
+                          }}
+                          variant="dot"
+                        >
+                          <Avatar
+                            alt="User Avatar"
+                            className="size-14"
+                            src={user.image}
+                          />
+                        </StyledBadge>
+                      ) : (
+                        <Avatar className="size-9 xs:size-11">
+                          {getInitials(user.name)}
+                        </Avatar>
+                      )}
+                    </li>
+                    <li className="mx-2 text-balance dark:text-white">
+                      <p className="font-medium">{user.name}</p>
+                    </li>
+                  </>
+                )
+              ) : null}
               {navItems.map((item, index) =>
                 item.external ? (
                   <li key={index}>
@@ -322,25 +328,31 @@ const Header = () => {
                   </li>
                 )
               )}
-              <IconButton onClick={toggleModeHandler} className="mx-2">
-                {isDarkMode ? (
-                  <MdWbSunny className="h-full size-6 dark:text-white text-black font-bold" />
-                ) : (
-                  <BsFillMoonStarsFill className="size-6 font-bold text-black dark:text-white" />
-                )}
-              </IconButton>
+              <li>
+                <IconButton onClick={toggleModeHandler} className="mx-2">
+                  {isDarkMode ? (
+                    <MdWbSunny className="h-full size-6 dark:text-white text-black font-bold" />
+                  ) : (
+                    <BsFillMoonStarsFill className="size-6 font-bold text-black dark:text-white" />
+                  )}
+                </IconButton>
+              </li>
+
               {user ? (
-                <MenuItem onClick={handleSignOut} style={{ color: "red" }}>
-                  <ListItemIcon style={{ color: "red" }}>
-                    <CiLogout />
-                  </ListItemIcon>
-                  Logout
-                </MenuItem>
+                <Button
+                  icon={<CiLogout />}
+                  onClick={handleSignOut}
+                  type="button"
+                  label="Logout"
+                  styles="dark:bg-red-500 hover:bg-sky-700 flex items-center gap-2 bg-slate-950 text-white px-5 py-2.5 rounded-full text-center outline-none"
+                />
               ) : (
                 <Link to="/login">
-                  <Button className="dark:bg-sky-700 bg-slate-950 text-white px-8 py-1.5 rounded-full text-center outline-none">
-                    Sign in
-                  </Button>
+                  <Button
+                    type="button"
+                    label="Sign In"
+                    styles="dark:bg-sky-500 hover:bg-sky-700 bg-slate-950 text-white px-8 py-1.5 rounded-full text-center outline-none"
+                  />
                 </Link>
               )}
             </ul>
