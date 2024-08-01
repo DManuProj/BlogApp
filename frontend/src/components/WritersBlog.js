@@ -35,11 +35,11 @@ export const WritersBlog = ({ post, index }) => {
         <h3 className="text-xl dark:text-white font-semibold leading-6 text-gray-900">
           {post.title}
         </h3>
-        <p className="mt-2 md:w-4/5  dark:text-white line-clamp-3 text-sm leading-6 text-gray-600">
+        <div className="mt-2 md:w-4/5  dark:text-white line-clamp-3 text-sm leading-6 text-gray-600">
           <Markdown options={{ wrapper: "article" }}>
             {post.description.slice(0, 250) + "..."}
           </Markdown>
-        </p>
+        </div>
         <Link
           to={`blog/${post.slug}/${post._id}`}
           className="flex items-center gap-2 text-black dark:text-white"

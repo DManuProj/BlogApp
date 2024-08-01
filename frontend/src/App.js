@@ -77,13 +77,14 @@ const App = () => {
 
   const checkTokenExpiration = () => {
     if (user && user.expiresIn) {
+      const expirationDate = new Date(user.expiresIn);
       const currentTime = new Date().getTime();
-      if (currentTime >= user.expiresIn) {
+      if (currentTime >= expirationDate.getTime()) {
         dispatch(signOut());
         setIsModalOpen(true);
         console.log("Token expired. Signing out...");
       } else {
-        const timeLeft = Math.max(0, user.expiresIn - currentTime);
+        const timeLeft = Math.max(0, expirationDate.getTime() - currentTime);
         console.log(`Token will expire in ${timeLeft / 1000} seconds.`);
       }
     }
@@ -93,8 +94,8 @@ const App = () => {
     // Check token expiration immediately when component mounts
     checkTokenExpiration();
 
-    // Set up interval to check token expiration every minute
-    intervalRef.current = setInterval(checkTokenExpiration, 30 * 60 * 1000); // 60 seconds
+    // Set up interval to check token expiration every 30 minutes
+    intervalRef.current = setInterval(checkTokenExpiration, 30 * 60 * 1000); // 30 minutes
 
     return () => {
       // Clear the interval on component unmount
