@@ -8,9 +8,14 @@ import * as Yup from "yup";
 import LoadingSpinner from "../LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { uploadFile } from "../../util";
-import { setUserData } from "../../store/userSlice";
+import { setIsLoading, setUserData } from "../../store/userSlice";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import Divider from "../Divider";
+import { FaArrowLeft } from "react-icons/fa6";
+import { useGoogleLogin } from "@react-oauth/google";
+import { googleSignUp } from "../../api/authApi";
 
 const RegisterForm = ({ setCurrentForm }) => {
   const { isLoading, sendRequest } = useHttpRequest();
@@ -18,6 +23,7 @@ const RegisterForm = ({ setCurrentForm }) => {
   const [file, setFile] = useState("");
   const [fileURL, setFileURL] = useState("");
   const [isFileUploaded, setIsFileUploaded] = useState(0);
+  const [showForm, setShowForm] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -83,7 +89,7 @@ const RegisterForm = ({ setCurrentForm }) => {
     return "bg-green-500";
   };
 
-  const submitHandler = async (values) => {
+  const handleFormatSubmit = async (values) => {
     const updatedForm = {
       ...values,
       image: fileURL,
@@ -108,90 +114,150 @@ const RegisterForm = ({ setCurrentForm }) => {
     }
   };
 
+  const handleGoogleSignup = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      dispatch(setIsLoading(true));
+
+      const result = await googleSignUp(tokenResponse.access_token);
+
+      if (result.success) {
+        dispatch(setIsLoading(false));
+        dispatch(setUserData(result));
+        setTimeout(() => {
+          window.history.back();
+        }, 1500);
+        toast.success(result.message);
+      } else {
+        dispatch(setIsLoading(false));
+        toast.error(result.message || "Something went wrong");
+      }
+    },
+  });
+
   return (
-    <Box>
-      <Formik
-        initialValues={INITIAL_VALUES}
-        validationSchema={FORM_VALIDATION}
-        onSubmit={submitHandler}
-      >
-        {({ setFieldValue, values }) => {
-          const passwordStrength = getPasswordStrength(values.password);
-          const progressBarColor = getProgressBarColor(passwordStrength);
-          return (
-            <Form className="flex flex-col gap-4 dark:text-white">
-              <Grid container spacing={1}>
-                <Grid item xs={6}>
+    <>
+      {showForm ? (
+        <Box>
+          <Formik
+            initialValues={INITIAL_VALUES}
+            validationSchema={FORM_VALIDATION}
+            onSubmit={handleFormatSubmit}
+          >
+            {({ setFieldValue, values }) => {
+              const passwordStrength = getPasswordStrength(values.password);
+              const progressBarColor = getProgressBarColor(passwordStrength);
+              return (
+                <Form className="flex flex-col gap-4 dark:text-white">
+                  <Grid container spacing={1}>
+                    <Grid item xs={6}>
+                      <div>
+                        <p>First Name*</p>
+                        <TextfieldUI name="firstName" />
+                      </div>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <div>
+                        <p>Last Name*</p>
+                        <TextfieldUI name="lastName" />
+                      </div>
+                    </Grid>
+                  </Grid>
                   <div>
-                    <p>First Name*</p>
-                    <TextfieldUI name="firstName" />
+                    <p>Role*</p>
+                    <TextfieldUI name="role" />
                   </div>
-                </Grid>
-                <Grid item xs={6}>
                   <div>
-                    <p>Last Name*</p>
-                    <TextfieldUI name="lastName" />
+                    <p>Email*</p>
+                    <TextfieldUI name="email" />
                   </div>
-                </Grid>
-              </Grid>
-              <div>
-                <p>Role*</p>
-                <TextfieldUI name="role" />
-              </div>
-              <div>
-                <p>Email*</p>
-                <TextfieldUI name="email" />
-              </div>
-              <div>
-                <p>Password*</p>
-                <TextfieldUI type="password" name="password" />
-                <div className="w-full h-2 mt-1 rounded-lg overflow-hidden">
-                  <div
-                    className={`h-full ${getProgressBarColor(
-                      getPasswordStrength(values.password)
-                    )}`}
-                    style={{
-                      width: `${getPasswordStrength(values.password)}%`,
-                    }}
-                  ></div>
-                </div>
-              </div>
-              <div>
-                <p>Profile Image*</p>
-                <FileInput
-                  name="image"
-                  setFieldValue={setFieldValue}
-                  value={values.image}
-                  setFile={setFile}
-                  fileURL={fileURL}
-                  isFileUploaded={isFileUploaded}
-                  setIsFileUploaded={setIsFileUploaded}
-                />
-              </div>
-              <Button
-                type="submit"
-                size="medium"
-                variant="contained"
-                className="bg-gray-800 font-bold text-lg dark:bg-white dark:text-black rounded-3xl"
-              >
-                Sign Up
-              </Button>
-              {isLoading && <LoadingSpinner />}
-            </Form>
-          );
-        }}
-      </Formik>
-      {error && <Typography color="error">{error}</Typography>}
-      <p className="p-2 dark:text-white">
-        Already have an account?{" "}
-        <span
-          onClick={() => setCurrentForm("login")}
-          className="text-blue-700 cursor-pointer"
-        >
-          SignIn
-        </span>
-      </p>
-    </Box>
+                  <div>
+                    <p>Password*</p>
+                    <TextfieldUI type="password" name="password" />
+                    <div className="w-full h-2 mt-1 rounded-lg overflow-hidden">
+                      <div
+                        className={`h-full ${getProgressBarColor(
+                          getPasswordStrength(values.password)
+                        )}`}
+                        style={{
+                          width: `${getPasswordStrength(values.password)}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div>
+                    <p>Profile Image*</p>
+                    <FileInput
+                      name="image"
+                      setFieldValue={setFieldValue}
+                      value={values.image}
+                      setFile={setFile}
+                      fileURL={fileURL}
+                      isFileUploaded={isFileUploaded}
+                      setIsFileUploaded={setIsFileUploaded}
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    size="medium"
+                    variant="contained"
+                    className="bg-gray-800 font-bold text-lg dark:bg-white dark:text-black rounded-3xl"
+                  >
+                    Sign Up
+                  </Button>
+                  {isLoading && <LoadingSpinner />}
+                </Form>
+              );
+            }}
+          </Formik>
+
+          {/* {error && <Typography color="error">{error}</Typography>} */}
+          <p className="p-2 dark:text-white">
+            Already have an account?{" "}
+            <span
+              onClick={() => setCurrentForm("login")}
+              className="text-blue-700 cursor-pointer"
+            >
+              SignIn
+            </span>
+          </p>
+
+          <p className="p-2 dark:text-white flex gap-2">
+            <FaArrowLeft
+              className="text-2xl lg:text-3xl cursor-pointer text-gray-800 dark:text-gray-400 mr-2"
+              onClick={() => setShowForm(false)}
+            />
+            Go Back
+          </p>
+        </Box>
+      ) : (
+        <div className="h-56  flex flex-col justify-center ">
+          <Button
+            onClick={handleGoogleSignup}
+            startIcon={<FcGoogle className="text-2xl" />}
+            className="w-full mb-5  flex justify-center text-lg font-bold bg-gray-800 text-white  items-center gap-4 dark:bg-white dark:text-black  rounded-full "
+          >
+            Sign Up with Google
+          </Button>
+          <Divider label="or sign in with email" />
+          <Button
+            // startIcon={<FcGoogle className="text-2xl" />}
+            onClick={() => setShowForm(true)}
+            className="w-full flex mt-9 justify-center text-lg font-bold bg-gray-800 text-white  items-center gap-4 dark:bg-white dark:text-black  rounded-full "
+          >
+            Continue with E-mail
+          </Button>
+          <p className="p-2 dark:text-white">
+            Already have an account?{" "}
+            <span
+              onClick={() => setCurrentForm("login")}
+              className="text-blue-700 cursor-pointer"
+            >
+              SignIn
+            </span>
+          </p>
+        </div>
+      )}
+    </>
   );
 };
 

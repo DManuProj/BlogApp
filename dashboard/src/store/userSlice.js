@@ -51,9 +51,18 @@ const userSlice = createSlice({
       state.isDarkMode = !state.isDarkMode;
       localStorage.setItem("isDarkMode", state.isDarkMode);
     },
+    setIsLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
   },
 });
 
-export const { setUserData, signInModal, setDrawerOpen, signOut, toggleMode } =
-  userSlice.actions;
+export const {
+  setUserData,
+  signInModal,
+  setDrawerOpen,
+  signOut,
+  setIsLoading,
+  toggleMode,
+} = userSlice.actions;
 export default userSlice.reducer;
