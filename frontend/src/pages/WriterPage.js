@@ -68,6 +68,7 @@ const WriterPage = () => {
   if (!writer || !popularPosts || !posts) {
     return <LoadingSpinner />;
   }
+  const followerId = writer.followers.find((f) => f === user.id);
 
   return (
     <Layout>
@@ -102,9 +103,9 @@ const WriterPage = () => {
               </div>
             </div>
             {/* Follow Button */}
-            {user?.token && (
+            {user && user.id !== writer._id && user?.token && (
               <div>
-                {!writer.followers.some((f) => f.followerId === user._id) ? (
+                {!followerId ? (
                   <Button
                     label="Follow"
                     onClick={handleFollow}
