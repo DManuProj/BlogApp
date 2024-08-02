@@ -78,7 +78,7 @@ const StarterPage = () => {
             onClick={handleOpenForm}
             className="bg-gray-800 font-bold text-lg dark:bg-white dark:text-black rounded-3xl"
           >
-            Embark on Your Creative Journey hoo
+            Embark on Your Creative Journey
           </Button>
         </div>
       </div>
