@@ -68,14 +68,16 @@ const WriterPage = () => {
   if (!writer || !popularPosts || !posts) {
     return <LoadingSpinner />;
   }
-  const followerId = writer.followers.find((f) => f === user.id);
+
+  const isFollowing =
+    user &&
+    writer.followers.some((follower) => follower.followerId._id === user.id);
 
   return (
     <Layout>
       <div>
         {/* Top Section */}
         <div className="w-full md:h-60 flex  flex-col gap-5 items-center md:flex-row bg-slate-900 dark:bg-gradient-to-r from-[#020b19] via-[#071b3e] to-[#020b19] mt-5 mb-10 rounded-md p-5 md:px-20">
-          {/* Writer Image */}
           <img
             src={writer?.image || NoProfile}
             alt="Writer"
@@ -83,11 +85,10 @@ const WriterPage = () => {
           />
           {/* Writer Info */}
           <div className="w-full h-full flex flex-col gap-y-5 md:gap-y-8 items-center justify-center">
-            {/* Writer Name */}
             <h2 className="text-white text-4xl 2xl:text-5xl font-bold">
               {writer?.name}
             </h2>
-            {/* Followers and Posts */}
+
             <div className="flex gap-10">
               <div className="flex flex-col items-center">
                 <p className="text-gray-300 text-2xl font-semibold">
@@ -105,7 +106,7 @@ const WriterPage = () => {
             {/* Follow Button */}
             {user && user.id !== writer._id && user?.token && (
               <div>
-                {!followerId ? (
+                {!isFollowing ? (
                   <Button
                     label="Follow"
                     onClick={handleFollow}
