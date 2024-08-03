@@ -1,1 +1,50 @@
-![image](https://github.com/DManuProj/BlogApp/assets/95587181/dc04a76d-2ae6-47ea-b3e9-38fd4fcf07a5)
+# Dhive Blog
+
+!Build Status
+
+## Description
+
+Dynamic blog application improving content creation and management with features include
+post creation, editing, deletion in a user-friendly interface and dashboard
+
+## Table of Contents
+
+- Installation
+- Usage
+- Features
+- Contributing
+- Contact
+
+## Installation
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/your-username/your-repo-name.git
+    cd your-repo-name
+    ```
+
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
+
+## Usage
+
+1. Start the development server:
+    ```bash
+    npm start
+    ```
+
+2. Open your browser and navigate to `http://localhost:3000`.
+
+## Features
+
+- Dashboard for writers
+- Stats in the dashboard
+
+
+## Contact
+
+Email - dulana.m.waniga@gmail.com
+
+Project Link: https://github.com/your-username/DhiveBlog
