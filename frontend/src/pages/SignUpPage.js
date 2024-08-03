@@ -215,12 +215,13 @@ const SignUpPage = () => {
                       {/* <BiImages />
                             <span>Picture</span> */}
                     </div>
-
-                    <Button
-                      label="Create Account"
-                      type="submit"
-                      styles="w-full sm:text-lg py-2.5 2xl:py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-slate-950 dark:bg-sky-500 hover:bg-sky-700 focus:outline-none  mt-8"
-                    />
+                    <div className=" -mt-5">
+                      <Button
+                        label="Create Account"
+                        type="submit"
+                        styles="w-full sm:text-lg py-2.5 2xl:py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-slate-950 dark:bg-sky-500 hover:bg-sky-700 focus:outline-none  -mt-15"
+                      />
+                    </div>
                   </Form>
                 );
               }}

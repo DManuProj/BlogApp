@@ -262,7 +262,7 @@ const Header = () => {
             onClick={closeSidebar}
           ></div>
           <div
-            className={`fixed top-0 right-0 h-full bg-gray-800 w-64 dark:bg-slate-900 shadow-lg transform translate-x-0 transition-transform ease-in-out duration-300 z-50`}
+            className={`fixed top-0 right-0  h-full bg-white w-64 dark:bg-slate-800 shadow-lg transform translate-x-0 transition-transform ease-in-out duration-300 z-50`}
           >
             <div className="flex justify-end px-5 h-20 mt-8">
               <RiCloseLine
@@ -270,7 +270,7 @@ const Header = () => {
                 onClick={closeSidebar}
               />
             </div>
-            <ul className="flex flex-col gap-7 w-full items-center text-white">
+            <ul className="flex flex-col gap-7 w-full items-center text-black font-normal dark:text-white">
               {user ? (
                 !user.isEmailVerified ? (
                   <Link to="/otp-verification" state={{ from: "/" }}>
