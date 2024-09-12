@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_URL = "http://3.110.105.117/api/";
+export const API_URL = "http://13.201.75.91/api/";
 
 export const googleSignIn = async (token) => {
   try {
