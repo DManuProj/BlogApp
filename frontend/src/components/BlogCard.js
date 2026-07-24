@@ -1,6 +1,7 @@
 import Markdown from "markdown-to-jsx";
 import React from "react";
 import { Link } from "react-router-dom";
+import { DEFAULT_AVATAR, onImageError } from "../util";
 
 const BlogCard = ({
   date,
@@ -78,7 +79,8 @@ const BlogCard = ({
           <div className="mt-5 flex items-center gap-4">
             <img
               className="h-10 w-10 rounded-full object-cover"
-              src={profileImg}
+              src={profileImg || DEFAULT_AVATAR}
+              onError={onImageError}
               alt="profile"
             />
             <div className="text-sm flex flex-col">
