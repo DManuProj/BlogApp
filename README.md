@@ -7,7 +7,7 @@ DHive is a full-stack **MERN** blogging and content-publishing platform. This re
 | **Blog (client)** | [`frontend/`](./frontend) | Public-facing site where readers browse posts, writers, and comments | https://dhive-frontend-delta.vercel.app |
 | **Dashboard** | [`dashboard/`](./dashboard) | Writer/admin panel — create & manage posts, view analytics and followers | https://dhive-frontend-cjut.vercel.app |
 
-> **API:** `https://dhive-backend.vercel.app/api`
+> **API:** `https://dhive-backend.vercel.app/api` 
 
 ---
 
